@@ -1,0 +1,350 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: system-ui;
+    border: none;
+    outline: none;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+html {
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    height: 100%;
+    width: 100%;
+    background: rgb(30, 30, 30);
+}
+
+.container {
+    height: 100%;
+    width: 100%;
+    overflow-y: scroll;
+}
+
+.interaction {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    height: 24px;
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    gap: 8px;
+}
+
+.interaction a {
+    height: 24px;
+    aspect-ratio: 1;
+}
+
+.back {
+    position: fixed;
+    display: block;
+    height: 24px;
+    width: 24px;
+    margin: 24px 0 0 24px;
+}
+
+.search img, .back img {
+    display: block;
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+}
+
+.heading {
+    padding: 24px 24px 0 24px;
+    font-size: 16px;
+    font-weight: 600;
+    color: rgb(255, 255, 255);
+}
+
+.anime_slider {
+    height: fit-content;
+    width: 100%;
+    padding: 12px 24px 12px 24px;
+    border-bottom: 2px solid rgb(46, 46, 46);
+}
+
+.anime_slider_container {
+    width: 100%;
+    aspect-ratio: 1.8/1;
+}
+
+.anime_slide {
+    display: none;
+    height: 100%;
+    width: 100%;
+}
+
+.anime_slide_image {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+}
+
+.anime_slider_textbox {
+    margin-top: 8px;
+    color: rgb(255, 255, 255);
+    font-size: 16px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.anime_slider_index {
+    height: 8px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 12px;
+}
+
+.anime_index {
+    height: 4px;
+    aspect-ratio: 1;
+    background: rgb(100, 100, 100);
+    border-radius: 50%;
+    margin: 0 1px;
+}
+
+.anime_cards {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px;
+}
+
+.home_card {
+    height: fit-content;
+    width: 100%;
+    display: flex;
+}
+
+.home_card_image {
+    height: fit-content;
+    width: 40%;
+    display: block;
+    border-radius: 8px;
+}
+
+.home_card_box {
+    width: 60%;
+    position: relative;
+}
+
+.home_card_title {
+    width: 100%;
+    font-size: 16px;
+    font-weight: 600;
+    color: rgb(255, 255, 255);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    margin-top: 8px;
+    padding: 0 8px;
+}
+
+.home_card_genres {
+    margin: 0 8px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-size: 12px;
+    color: rgb(100, 100, 100);
+}
+
+.home_card_rating {
+    color: rgb(255, 255, 255);
+    padding: 0 8px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 8px;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.home_card_rating img {
+    height: 10px;
+    aspect-ratio: 1;
+    display: block;
+    object-fit: contain;
+    margin-left: 4px;
+}
+
+.home_card_desc {
+    margin: 12px;
+    font-size: 12px;
+    color: rgb(100, 100, 100);
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.home_card_watch {
+    padding: 8px 16px;
+    color: rgb(0, 0, 0);
+    font-size: 14px;
+    font-weight: 600;
+    background: rgb(255, 165, 0);
+    border-radius: 8px;
+    margin: 8px;
+    position: absolute;
+    bottom: 8px;
+}
+
+.search_input {
+    position: fixed;
+    top: 56px;
+    left: 24px;
+    right: 24px;
+    padding: 8px;
+    background: rgb(38, 38, 38);
+    color: rgb(255, 255, 255);
+    border-radius: 8px;
+}
+
+.search_results {
+    height: fit-content;
+    width: 100%;
+    margin-top: 112px;
+    padding: 0 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.search_result {
+    height: fit-content;
+    width: 100%;
+    padding: 8px;
+    background: rgb(38, 38, 38);
+    color: rgb(255, 255, 255);
+    border-radius: 8px;
+}
+
+.anime_info {
+    height: fit-content;
+    width: 100%;
+    display: flex;
+    overflow: hidden;
+    align-items: center;
+    border-bottom: 2px solid rgb(46, 46, 46);
+    padding: 16px;
+    margin-top: 32px;
+}
+
+.anime_image {
+    display: block;
+    height: fit-content;
+    width: 35%;
+    border-radius: 8px;
+    margin: 8px;
+}
+
+.anime_box {
+    width: 65%;
+}
+
+.anime_title {
+    width: 95%;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 8px 0;
+    color: rgb(255, 255, 255);
+    font-size: 14px;
+}
+
+.anime_desc {
+    font-size: 12px;
+    color: rgb(100, 100, 100);
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.anime_seasons {
+    padding: 8px;
+    margin: 24px;
+    margin-top: 24px;
+    background: rgb(38, 38, 38);
+    border-radius: 8px;
+}
+
+.anime_episodes {
+    margin: 24px;
+}
+
+.anime_seasons_header, .anime_episodes_header {
+    color: rgb(255, 255, 255);
+}
+
+.anime_seasons_list {
+    height: fit-content;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.anime_episodes_list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 8px;
+}
+
+.anime_season, .anime_episode {
+    padding: 4px 8px;
+    background: rgb(46, 46, 46);
+    border-radius: 8px;
+    color: rgb(255, 255, 255);
+}
+
+.anime_episode {
+    background: rgb(38, 38, 38);
+    padding: 8px;
+}
+
+.anime_episode_title {
+    color: rgb(100, 100, 100);
+}
+
+.video_container {
+    position: fixed;
+    bottom: 8px;
+    right: 8px;
+    width: 60%;
+    aspect-ratio: 16 / 9;
+}
+
+.video_exit {
+    color: rgb(255, 255, 255);
+    position: absolute;
+    top: 0;
+    right: 8px;
+    z-index: 999;
+    height: fit-content;
+    width: fit-content;
+}
+
+.video_player {
+    height: 100%;
+    width: 100%;
+}
