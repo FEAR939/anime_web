@@ -4,7 +4,7 @@ const app = express();
 import * as fs from "fs";
 import * as path from "path";
 import * as jwt from "jsonwebtoken";
-import * as bcrypt from "bcrypt";
+import * as bcrypt from "bcryptjs";
 
 app.use(express.json());
 app.use(express.text());
@@ -96,7 +96,7 @@ pool.getConnection().then(conn => {
             const { username, password } = req.body;
             const hashedpassword = await bcrypt.hash(password, 10);
 
-            conn.query("INSERT INTO users value (?, ?)", [username, hashedpassword]);
+            conn.query("INSERT INTO users (username, password) VALUES (?, ?)", [username, hashedpassword]);
             res.status(201).json({ message: "User registered successfully" });
         } catch (error) {
             res.status(500).json({ message: "Registration failed" });
