@@ -43,6 +43,10 @@ body {
     aspect-ratio: 1;
 }
 
+.login {
+    color: rgb(255, 255, 255);
+}
+
 .back {
     position: fixed;
     display: block;
@@ -320,10 +324,38 @@ body {
 .anime_episode {
     background: rgb(38, 38, 38);
     padding: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.anime_episode_index {
+    width: 100%;
 }
 
 .anime_episode_title {
     color: rgb(100, 100, 100);
+    width: 50%;
+}
+
+.anime_episode_seen {
+    height: fit-content;
+    width: fit-content;
+    padding: 4px 8px;
+    border-radius: 8px;
+    background: rgb(46, 46, 46);
+    color: rgb(255, 255, 255);
+    cursor: pointer;
+}
+
+.anime_episode_watch {
+    height: fit-content;
+    width: fit-content;
+    padding: 4px 8px;
+    border-radius: 8px;
+    background: rgb(255, 165, 0);
+    color: rgb(0, 0, 0);
+    cursor: pointer;
 }
 
 .video_container {
@@ -347,4 +379,41 @@ body {
 .video_player {
     height: 100%;
     width: 100%;
+}
+
+#form {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    height: fit-content;
+    width: calc(100% - 48px);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+#form h1 {
+    color: rgb(255, 255, 255);
+}
+
+#form input {
+    padding: 8px 16px;
+    background: rgb(38, 38, 38);
+    color: rgb(255, 255, 255);
+    border-radius: 8px;
+}
+
+#form input[type="submit"] {
+    background: rgb(255, 165, 0);
+    color: rgb(0, 0, 0);
+}
+
+#form span {
+    display: flex;
+    gap: 8px;
+    color: rgb(255, 255, 255);
+}
+
+#form span a {
+    color: rgb(255, 165, 0);
 }

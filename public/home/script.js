@@ -3,6 +3,16 @@
     const anime_slider_textbox = document.body.querySelector(".anime_slider_textbox");
     const anime_slider_index = document.body.querySelector(".anime_slider_index");
     const anime_cards = document.body.querySelector(".anime_cards");
+    const interaction = document.body.querySelector(".interaction");
+
+    const cookie = localStorage.getItem("cookie");
+    if (!cookie) {
+        const login = document.createElement("a");
+        login.className = "login";
+        login.textContent = "Login";
+        login.href = "/login";
+        interaction.appendChild(login);
+    }
 
     async function get_dom(url) {
         try {
@@ -30,7 +40,7 @@
                 slides[currentindex].slide.style.display = "none";
                 slides[currentindex].index.style.background = "rgb(100, 100, 100)";
                 slides[currentindex].index.style.height = "4px";
-                if (currentindex > slides.length) {
+                if (currentindex == (slides.length - 1)) {
                     currentindex = 0;
                 } else {
                     currentindex++;
