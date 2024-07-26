@@ -52,7 +52,6 @@ const pool = mariadb_1.default.createPool({
     password: "anime_web",
     database: "anime_web"
 });
-let conn;
 // Routes for home page
 app.get("/", (req, res) => {
     res.status(200).setHeader("Content-Type", "text/html").send(fs.readFileSync(path.join(__dirname, "/public/home/index.html"), "utf8"));
@@ -114,9 +113,7 @@ app.get("/login", (req, res) => {
     res.status(200).setHeader("Content-Type", "text/html").send(fs.readFileSync(path.join(__dirname, "/public/login/index.html"), "utf8"));
 });
 app.post("/auth-register", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!conn) {
-        conn = yield pool.getConnection();
-    }
+    const conn = yield pool.getConnection();
     try {
         const { username, password } = req.body;
         const hashedpassword = yield bcrypt.hash(password, 10);
@@ -126,11 +123,10 @@ app.post("/auth-register", (req, res) => __awaiter(void 0, void 0, void 0, funct
     catch (error) {
         res.status(500).json({ message: "Registration failed" });
     }
+    conn.release();
 }));
 app.post("/auth-login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!conn) {
-        conn = yield pool.getConnection();
-    }
+    const conn = yield pool.getConnection();
     try {
         const { username, password } = req.body;
         const user = yield conn.query("SELECT * FROM users WHERE username=(?)", username);
@@ -147,12 +143,11 @@ app.post("/auth-login", (req, res) => __awaiter(void 0, void 0, void 0, function
     catch (error) {
         res.status(500).json({ error: 'Login failed' });
     }
+    conn.release();
 }));
 // Routes for seen/unseen
 app.get("/get-seen", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!conn) {
-        conn = yield pool.getConnection();
-    }
+    const conn = yield pool.getConnection();
     const token = req.header("Authorization");
     if (!token)
         return res.status(401).json({ error: "Access denied" });
@@ -164,11 +159,10 @@ app.get("/get-seen", (req, res) => __awaiter(void 0, void 0, void 0, function* (
     catch (error) {
         res.status(401).json({ error: "Invalid token" });
     }
+    conn.release();
 }));
 app.post("/handle-seen", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!conn) {
-        conn = yield pool.getConnection();
-    }
+    const conn = yield pool.getConnection();
     const token = req.header("Authorization");
     if (!token)
         return res.status(401).json({ error: "Acces denied" });
@@ -189,6 +183,7 @@ app.post("/handle-seen", (req, res) => __awaiter(void 0, void 0, void 0, functio
     catch (error) {
         res.status(401).json({ error: "Invalid token" });
     }
+    conn.release();
 }));
 app.listen(PORT, () => {
     console.log("Server running on Port: %s", PORT);

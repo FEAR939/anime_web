@@ -13,13 +13,11 @@ app.use(express.urlencoded({ extended: true }));
 const PORT: number = 80;
 
 const pool = mariadb.createPool({
-    host: "",
-    user: "",
-    password: "",
-    database: ""
+    host: "raspberrypi",
+    user: "anime_web",
+    password: "anime_web",
+    database: "anime_web"
 });
-
-let conn: mariadb.Connection;
 
 // Routes for home page
 app.get("/", (req: Request, res: Response) => {
@@ -93,9 +91,7 @@ app.get("/login", (req: Request, res: Response) => {
 });
 
 app.post("/auth-register", async (req: Request, res: Response) => {
-    if (!conn) {
-        conn = await pool.getConnection();
-    }
+    const conn = await pool.getConnection();
     try {
         const { username, password } = req.body;
         const hashedpassword = await bcrypt.hash(password, 10);
@@ -105,12 +101,11 @@ app.post("/auth-register", async (req: Request, res: Response) => {
     } catch (error) {
         res.status(500).json({ message: "Registration failed" });
     }
+    conn.release();
 });
 
 app.post("/auth-login", async (req: Request, res: Response) => {
-    if (!conn) {
-        conn = await pool.getConnection();
-    }
+    const conn = await pool.getConnection();
     try {
         const { username, password } = req.body;
         const user = await conn.query("SELECT * FROM users WHERE username=(?)", username);
@@ -126,12 +121,11 @@ app.post("/auth-login", async (req: Request, res: Response) => {
     } catch (error) {
         res.status(500).json({ error: 'Login failed' });
     }
+    conn.release();
 });
 // Routes for seen/unseen
 app.get("/get-seen", async (req: Request, res: Response) => {
-    if (!conn) {
-        conn = await pool.getConnection();
-    }
+    const conn = await pool.getConnection();
     const token = req.header("Authorization");
     if (!token) return res.status(401).json({ error: "Access denied" });
     try {
@@ -141,12 +135,11 @@ app.get("/get-seen", async (req: Request, res: Response) => {
     } catch (error) {
         res.status(401).json({ error: "Invalid token" });
     }
+    conn.release();
 });
 
 app.post("/handle-seen", async (req: Request, res: Response) => {
-    if (!conn) {
-        conn = await pool.getConnection();
-    }
+    const conn = await pool.getConnection();
     const token = req.header("Authorization");
     if (!token) return res.status(401).json({ error: "Acces denied" });
     try {
@@ -164,6 +157,7 @@ app.post("/handle-seen", async (req: Request, res: Response) => {
     } catch (error) {
         res.status(401).json({ error: "Invalid token" });
     }
+    conn.release();
 });
 
 app.listen(PORT, () => {
