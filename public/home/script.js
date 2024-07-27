@@ -12,6 +12,17 @@
         login.textContent = "Login";
         login.href = "/login";
         interaction.appendChild(login);
+    } else {
+        fetch("/get-avatar", {
+            headers: {
+                'Authorization': cookie,
+            }
+        }).then(response => response.json()).then(text => {
+            const avatar = document.createElement("img");
+            avatar.className = "user_avatar";
+            avatar.src = text.avatar;
+            interaction.appendChild(avatar);
+        });
     }
 
     async function get_dom(url) {

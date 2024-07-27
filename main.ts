@@ -7,7 +7,7 @@ import * as jwt from "jsonwebtoken";
 import * as bcrypt from "bcryptjs";
 
 app.use(express.json());
-app.use(express.text());
+app.use(express.text({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 const PORT: number = 80;
@@ -48,6 +48,42 @@ app.get("/watch", (req: Request, res: Response) => {
 
 app.get("/public/watch/script.js", (req: Request, res: Response) => {
     res.status(200).setHeader("Content-Type", "text/javascript").send(fs.readFileSync(path.join(__dirname, "/public/watch/script.js"), "utf8"));
+});
+// Routes for avatar page
+app.get("/avatar", (req: Request, res: Response) => {
+    res.status(200).setHeader("Content-Type", "text/html").send(fs.readFileSync(path.join(__dirname, "/public/avatar/index.html"), "utf-8"));
+});
+app.get("/public/avatar/script.js", (req: Request, res: Response) => {
+    res.status(200).setHeader("Content-Type", "text/javascript").send(fs.readFileSync(path.join(__dirname, "/public/avatar/script.js"), "utf-8"));
+});
+app.post("/avatar-upload", async (req: Request, res: Response) => {
+    const conn = await pool.getConnection();
+    const token = req.header("Authorization");
+    if (!token) return res.status(401).json({ error: "Acces denied" });
+    try {
+        const decoded = jwt.verify(token, 'your-secret-key');
+        
+        await conn.query("UPDATE users SET avatar = ? WHERE id = ?", [req.body, (<any>decoded).userId]);
+        res.status(201).json({ message: "success" });
+    } catch (error) {
+        res.status(401).json({ error: "Invalid token" });
+    }
+    conn.release();
+});
+
+app.get("/get-avatar", async (req: Request, res: Response) => {
+    const conn = await pool.getConnection();
+    const token = req.header("Authorization");
+    if (!token) return res.status(401).json({ error: "Acces denied" });
+    try {
+        const decoded = jwt.verify(token, 'your-secret-key');
+        
+        const image = await conn.query("Select avatar FROM users WHERE id = ?", (<any>decoded).userId);
+        res.status(201).send(image[0]);
+    } catch (error) {
+        res.status(401).json({ error: "Invalid token" });
+    }
+    conn.release();
 });
 
 // Routes for Ressources

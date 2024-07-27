@@ -43,7 +43,7 @@ const path = __importStar(require("path"));
 const jwt = __importStar(require("jsonwebtoken"));
 const bcrypt = __importStar(require("bcryptjs"));
 app.use(express_1.default.json());
-app.use(express_1.default.text());
+app.use(express_1.default.text({ limit: '50mb' }));
 app.use(express_1.default.urlencoded({ extended: true }));
 const PORT = 80;
 const pool = mariadb_1.default.createPool({
@@ -76,6 +76,43 @@ app.get("/watch", (req, res) => {
 app.get("/public/watch/script.js", (req, res) => {
     res.status(200).setHeader("Content-Type", "text/javascript").send(fs.readFileSync(path.join(__dirname, "/public/watch/script.js"), "utf8"));
 });
+// Routes for avatar page
+app.get("/avatar", (req, res) => {
+    res.status(200).setHeader("Content-Type", "text/html").send(fs.readFileSync(path.join(__dirname, "/public/avatar/index.html"), "utf-8"));
+});
+app.get("/public/avatar/script.js", (req, res) => {
+    res.status(200).setHeader("Content-Type", "text/javascript").send(fs.readFileSync(path.join(__dirname, "/public/avatar/script.js"), "utf-8"));
+});
+app.post("/avatar-upload", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const conn = yield pool.getConnection();
+    const token = req.header("Authorization");
+    if (!token)
+        return res.status(401).json({ error: "Acces denied" });
+    try {
+        const decoded = jwt.verify(token, 'your-secret-key');
+        yield conn.query("UPDATE users SET avatar = ? WHERE id = ?", [req.body, decoded.userId]);
+        res.status(201).json({ message: "success" });
+    }
+    catch (error) {
+        res.status(401).json({ error: "Invalid token" });
+    }
+    conn.release();
+}));
+app.get("/get-avatar", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const conn = yield pool.getConnection();
+    const token = req.header("Authorization");
+    if (!token)
+        return res.status(401).json({ error: "Acces denied" });
+    try {
+        const decoded = jwt.verify(token, 'your-secret-key');
+        const image = yield conn.query("Select avatar FROM users WHERE id = ?", decoded.userId);
+        res.status(201).send(image[0]);
+    }
+    catch (error) {
+        res.status(401).json({ error: "Invalid token" });
+    }
+    conn.release();
+}));
 // Routes for Ressources
 app.get("/public/icons8-search.png", (req, res) => {
     const stream = fs.createReadStream(path.join(__dirname, "/public/icons8-search.png"));

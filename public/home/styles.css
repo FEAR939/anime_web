@@ -23,11 +23,14 @@ body {
 .container {
     height: 100%;
     width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
     overflow-y: scroll;
+    position: relative;
 }
 
 .interaction {
-    position: fixed;
+    position: absolute;
     top: 24px;
     right: 24px;
     height: 24px;
@@ -39,8 +42,10 @@ body {
 }
 
 .interaction a {
-    height: 24px;
+    height: 30px;
     aspect-ratio: 1;
+    display: flex;
+    align-items: center;
 }
 
 .login {
@@ -59,6 +64,19 @@ body {
     display: block;
     height: 100%;
     width: 100%;
+    object-fit: contain;
+    height: 16px;
+}
+
+.back img {
+    height: 20px;
+}
+
+.user_avatar {
+    display: block;
+    height: 30px;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
     object-fit: contain;
 }
 
@@ -209,21 +227,32 @@ body {
     bottom: 8px;
 }
 
-.search_input {
-    position: fixed;
-    top: 56px;
-    left: 24px;
-    right: 24px;
+.search_bar {
+    width: calc(100% - 48px);
     padding: 8px;
+    margin: 56px 24px 0 24px;
     background: rgb(38, 38, 38);
-    color: rgb(255, 255, 255);
     border-radius: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.search_bar img {
+    height: 20px;
+    display: block;
+}
+
+.search_input {
+    background: transparent;
+    color: rgb(255, 255, 255);
+    margin-left: 8px;
+    width: calc(100% - 20px);
 }
 
 .search_results {
     height: fit-content;
     width: 100%;
-    margin-top: 112px;
+    margin-top: 24px;
     padding: 0 24px;
     display: flex;
     flex-direction: column;
@@ -321,6 +350,10 @@ body {
     color: rgb(255, 255, 255);
 }
 
+.anime_season {
+    padding: 8px 16px;
+}
+
 .anime_episode {
     background: rgb(38, 38, 38);
     padding: 8px;
@@ -335,7 +368,7 @@ body {
 
 .anime_episode_title {
     color: rgb(100, 100, 100);
-    width: 50%;
+    flex: 1;
 }
 
 .anime_episode_seen {
@@ -416,4 +449,42 @@ body {
 
 #form span a {
     color: rgb(255, 165, 0);
+}
+
+::-webkit-scrollbar {
+    width: 0;
+}
+
+#show {
+    aspect-ratio: 1;
+    width: 100%;
+    background: rgb(38, 38, 38);
+    border-radius: 8px;
+    margin: 24px 0;
+    object-fit: contain;
+}
+
+#upload {
+    padding: 8px;
+    background: rgb(38, 38, 38);
+    color: rgb(255, 255, 255);
+    border-radius: 8px;
+}
+
+#upload::file-selector-button {
+    background: rgb(46, 46, 46);
+    color: rgb(255, 255, 255);
+    padding: 8px;
+    border-radius: 8px;
+    outline: none;
+    border: none;
+    cursor: pointer;
+    margin-right: 8px;
+}
+
+#submit {
+    padding: 16px 32px;
+    background: rgb(38, 38, 38);
+    color:rgb(255, 255, 255);
+    border-radius: 8px;
 }
