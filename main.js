@@ -129,6 +129,16 @@ app.get("/public/icons8-arrowleft.png", (req, res) => {
     res.status(200).setHeader("Content-Type", "image/png");
     stream.pipe(res);
 });
+app.get("/public/icons8-bookmark-filled.png", (req, res) => {
+    const stream = fs.createReadStream(path.join(__dirname, "/public/icons8-bookmark-filled.png"));
+    res.status(200).setHeader("Content-Type", "image/png");
+    stream.pipe(res);
+});
+app.get("/public/icons8-bookmark-outlined.png", (req, res) => {
+    const stream = fs.createReadStream(path.join(__dirname, "/public/icons8-bookmark-outlined.png"));
+    res.status(200).setHeader("Content-Type", "image/png");
+    stream.pipe(res);
+});
 // Routes for cors-fetch
 app.post("/cors-fetch", (req, res) => {
     const request = req.body.split(" ");

@@ -108,7 +108,7 @@
             const title = anime_element.textContent.trim();
 
             const doc = await get_dom("https://aniworld.to" + redirect);
-            const genres = Array.from(doc.querySelectorAll(".genres a")).map((genre) => genre.textContent).join(", ");
+            const genres = Array.from(doc.querySelectorAll(".genres a")).map((genre) => genre.textContent);
             const desc = doc.querySelector(".seri_des").getAttribute("data-full-description");
             const rating = doc.querySelector(".starRatingResult strong").textContent;
 
@@ -138,8 +138,14 @@
             
             const home_card_genres = document.createElement("div");
             home_card_genres.className = "home_card_genres";
-            home_card_genres.textContent = genres;
             home_card_box.appendChild(home_card_genres);
+
+            genres.forEach(genre => {
+                const home_card_genre = document.createElement("div");
+                home_card_genre.className = "home_card_genre";
+                home_card_genre.textContent = genre;
+                home_card_genres.appendChild(home_card_genre);
+            });
 
             const home_card_rating = document.createElement("div");
             home_card_rating.className = "home_card_rating";

@@ -115,6 +115,10 @@
                     anime_episode.className = "anime_episode";
                     anime_episodeslist.appendChild(anime_episode);
 
+                    const anime_episode_area = document.createElement("div");
+                    anime_episode_area.className = "anime_episode_area";
+                    anime_episode.appendChild(anime_episode_area);
+
                     const anime_episode_index = document.createElement("div");
                     anime_episode_index.className = "anime_episode_index";
                     anime_episode.appendChild(anime_episode_index);
@@ -125,16 +129,13 @@
 
                     const anime_episode_seen = document.createElement("button");
                     anime_episode_seen.className = "anime_episode_seen";
-                    anime_episode_seen.textContent = "Seen";
+                    anime_episode_seen.innerHTML = "<img src='/public/icons8-bookmark-outlined.png'> Subscribe";
                     anime_episode.appendChild(anime_episode_seen);
 
-                    const anime_episode_watch = document.createElement("button");
-                    anime_episode_watch.className = "anime_episode_watch";
-                    anime_episode_watch.textContent = "Watch";
-                    anime_episode.appendChild(anime_episode_watch);
-
                     if (cookie) {
-                        if (seen.indexOf(redirect) !== -1) anime_episode_seen.style.background = "rgb(255, 165, 0)";
+                        if (seen.indexOf(redirect) !== -1) {
+                            anime_episode_seen.innerHTML = "<img src='/public/icons8-bookmark-filled.png'> Subscribed";
+                        }
 
                         anime_episode_seen.onclick = () => {
                             fetch("/handle-seen", {
@@ -147,8 +148,14 @@
                                 if (response.status == 401) return console.log("Error marking episode as seen/unseen");
                                 return response.json();
                             }).then(result => {
-                                if (result.action == "added") return anime_episode_seen.style.background = "rgb(255, 165, 0)";
-                                if (result.action == "removed") return anime_episode_seen.style.background = "rgb(46, 46, 46)";
+                                if (result.action == "added") {
+                                    anime_episode_seen.innerHTML = "<img src='/public/icons8-bookmark-filled.png'> Subscribed";
+                                    return;
+                                }
+                                if (result.action == "removed") {
+                                    anime_episode_seen.innerHTML = "<img src='/public/icons8-bookmark-outlined.png'> Subscribe";
+                                    return;
+                                }
                             })
                         }
                     }
@@ -168,7 +175,7 @@
                     anime_episode_index.textContent = "Episode " + episode_index;
                     anime_episode_title.textContent = title;
 
-                    anime_episode_watch.addEventListener("click", async () => {
+                    anime_episode_area.addEventListener("click", async () => {
                         doc = await get_dom("https://aniworld.to" + redirect);
 
                         // get language
