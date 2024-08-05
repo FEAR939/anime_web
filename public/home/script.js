@@ -44,13 +44,10 @@
         function loop() {
             slides[currentindex].slide.style.display = "block";
             anime_slider_textbox.textContent = slides[currentindex].title;
-            slides[currentindex].index.style.background = "rgb(255, 165, 0)";
-            slides[currentindex].index.style.height = "5px";
+            anime_slider_index.textContent = currentindex + 1 + "/" + slides.length;
 
             setTimeout(() => {
                 slides[currentindex].slide.style.display = "none";
-                slides[currentindex].index.style.background = "rgb(100, 100, 100)";
-                slides[currentindex].index.style.height = "4px";
                 if (currentindex == (slides.length - 1)) {
                     currentindex = 0;
                 } else {
@@ -83,14 +80,9 @@
             anime_slide_image.src = "https://aniworld.to" + image;
             anime_slide.appendChild(anime_slide_image);
 
-            const anime_index = document.createElement("div");
-            anime_index.className = "anime_index";
-            anime_slider_index.appendChild(anime_index);
-
             slide_elements.push({
                 slide: anime_slide,
                 title: title,
-                index: anime_index,
             });
             
             anime_slider.appendChild(anime_slide);
@@ -107,10 +99,10 @@
             const image = anime_element.querySelector("img").getAttribute("data-src");
             const title = anime_element.textContent.trim();
 
-            const doc = await get_dom("https://aniworld.to" + redirect);
-            const genres = Array.from(doc.querySelectorAll(".genres a")).map((genre) => genre.textContent);
-            const desc = doc.querySelector(".seri_des").getAttribute("data-full-description");
-            const rating = doc.querySelector(".starRatingResult strong").textContent;
+            // const doc = await get_dom("https://aniworld.to" + redirect);
+            // const genres = Array.from(doc.querySelectorAll(".genres a")).map((genre) => genre.textContent);
+            // const desc = doc.querySelector(".seri_des").getAttribute("data-full-description");
+            // const rating = doc.querySelector(".starRatingResult strong").textContent;
 
             // create DOM element
 
@@ -122,46 +114,50 @@
             home_card_image.src = "https://aniworld.to" + image;
             home_card.appendChild(home_card_image);
 
-            const home_card_box = document.createElement("div");
-            home_card_box.className = "home_card_box";
-            home_card.appendChild(home_card_box);
+            // const home_card_box = document.createElement("div");
+            // home_card_box.className = "home_card_box";
+            // home_card.appendChild(home_card_box);
 
-            home_card_image.onload = () => {
-                window.onresize = () => home_card_box.clientHeight = home_card_image.height + "px";
-                home_card_box.clientHeight = home_card_image.height + "px";
-            }
+            // home_card_image.onload = () => {
+            //     window.onresize = () => home_card_box.clientHeight = home_card_image.height + "px";
+            //     home_card_box.clientHeight = home_card_image.height + "px";
+            // }
 
             const home_card_title = document.createElement("div");
             home_card_title.className = "home_card_title";
             home_card_title.textContent = title;
-            home_card_box.appendChild(home_card_title);
+            home_card.appendChild(home_card_title);
             
-            const home_card_genres = document.createElement("div");
-            home_card_genres.className = "home_card_genres";
-            home_card_box.appendChild(home_card_genres);
+            // const home_card_genres = document.createElement("div");
+            // home_card_genres.className = "home_card_genres";
+            // home_card_box.appendChild(home_card_genres);
 
-            genres.forEach(genre => {
-                const home_card_genre = document.createElement("div");
-                home_card_genre.className = "home_card_genre";
-                home_card_genre.textContent = genre;
-                home_card_genres.appendChild(home_card_genre);
-            });
+            // genres.forEach(genre => {
+            //     const home_card_genre = document.createElement("div");
+            //     home_card_genre.className = "home_card_genre";
+            //     home_card_genre.textContent = genre;
+            //     home_card_genres.appendChild(home_card_genre);
+            // });
 
-            const home_card_rating = document.createElement("div");
-            home_card_rating.className = "home_card_rating";
-            home_card_rating.innerHTML = rating + '<img src="/public/icons8-star.png">';
-            home_card_box.appendChild(home_card_rating);
+            // const home_card_rating = document.createElement("div");
+            // home_card_rating.className = "home_card_rating";
+            // home_card_rating.innerHTML = rating + '<img src="/public/icons8-star.png">';
+            // home_card_box.appendChild(home_card_rating);
 
-            const home_card_desc = document.createElement("div");
-            home_card_desc.className = "home_card_desc";
-            home_card_desc.textContent = desc;
-            home_card_box.appendChild(home_card_desc);
+            // const home_card_desc = document.createElement("div");
+            // home_card_desc.className = "home_card_desc";
+            // home_card_desc.textContent = desc;
+            // home_card_box.appendChild(home_card_desc);
 
-            const home_card_watch = document.createElement("a");
-            home_card_watch.className = "home_card_watch";
-            home_card_watch.textContent = "Watch now";
-            home_card_watch.href = "/watch?v=https://aniworld.to" + redirect;
-            home_card_box.appendChild(home_card_watch);
+            // const home_card_watch = document.createElement("a");
+            // home_card_watch.className = "home_card_watch";
+            // home_card_watch.textContent = "Watch now";
+            // home_card_watch.href = "/watch?v=https://aniworld.to" + redirect;
+            // home_card_box.appendChild(home_card_watch);
+
+            home_card.onclick = () => {
+                window.location.replace("/watch?v=https://aniworld.to" + redirect);
+            }
 
             anime_cards.appendChild(home_card);
         });

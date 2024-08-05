@@ -46,6 +46,8 @@
         const title = doc.querySelector(".series-title h1").textContent;
         const desc = doc.querySelector(".seri_des").getAttribute("data-full-description");
         const image = doc.querySelector(".seriesCoverBox img").getAttribute("data-src");
+        const genres = Array.from(doc.querySelectorAll(".genres a")).map((genre) => genre.textContent);
+        const rating = doc.querySelector(".starRatingResult strong").textContent;
 
         const anime_image = document.createElement("img");
         anime_image.className = "anime_image";
@@ -66,6 +68,22 @@
         anime_title.className = "anime_title";
         anime_title.textContent = title;
         anime_box.appendChild(anime_title);
+
+        const anime_genres = document.createElement("div");
+        anime_genres.className = "anime_genres";
+        anime_box.appendChild(anime_genres);
+
+        genres.forEach(genre => {
+            const anime_genre = document.createElement("div");
+            anime_genre.className = "anime_genre";
+            anime_genre.textContent = genre;
+            anime_genres.appendChild(anime_genre);
+        });
+
+        const anime_rating = document.createElement("div");
+        anime_rating.className = "anime_rating";
+        anime_rating.innerHTML = rating + '<img src="/public/icons8-star.png">';
+        anime_box.appendChild(anime_rating);
 
         const anime_desc = document.createElement("div");
         anime_desc.className = "anime_desc";
