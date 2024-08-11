@@ -140,7 +140,7 @@
 
             const redirect = anime_element.getAttribute("href");
             var image;
-            const title = anime_element.textContent.trim();
+            const title = anime_element.querySelector("h3").textContent.trim();
 
             await get_dom("https://aniworld.to" + redirect).then(dom => {
                 image = dom.querySelector(".seriesCoverBox img").getAttribute("data-src");
