@@ -113,13 +113,6 @@ app.get("/get-avatar", (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
     conn.release();
 }));
-// Routes for watchlist page
-app.get("/watchlist", (req, res) => {
-    res.status(200).setHeader("Content-Type", "text/html").send(fs.readFileSync(path.join(__dirname, "/public/watchlist/index.html"), "utf8"));
-});
-app.get("/public/watchlist/script.js", (req, res) => {
-    res.status(200).setHeader("Content-Type", "text/javascript").send(fs.readFileSync(path.join(__dirname, "/public/watchlist/script.js"), "utf8"));
-});
 // Routes for Ressources
 app.get("/public/icons8-search.png", (req, res) => {
     const stream = fs.createReadStream(path.join(__dirname, "/public/icons8-search.png"));
@@ -232,46 +225,6 @@ app.post("/handle-seen", (req, res) => __awaiter(void 0, void 0, void 0, functio
             seen.push(req.body.toString());
         }
         yield conn.query("UPDATE users SET seen = ? WHERE id = ?", [JSON.stringify(seen), decoded.userId]);
-        res.status(201).json({ action: index == -1 ? "added" : "removed" });
-    }
-    catch (error) {
-        res.status(401).json({ error: "Invalid token" });
-    }
-    conn.release();
-}));
-// routes for marked
-app.get("/get-marked", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const conn = yield pool.getConnection();
-    const token = req.header("Authorization");
-    if (!token)
-        return res.status(401).json({ error: "Access denied" });
-    try {
-        const decoded = jwt.verify(token, 'your-secret-key');
-        const marked = yield conn.query("SELECT marked from users WHERE id=(?)", decoded.userId);
-        res.status(200).send(marked[0]);
-    }
-    catch (error) {
-        res.status(401).json({ error: "Invalid token" });
-    }
-    conn.release();
-}));
-app.post("/handle-marked", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const conn = yield pool.getConnection();
-    const token = req.header("Authorization");
-    if (!token)
-        return res.status(401).json({ error: "Acces denied" });
-    try {
-        const decoded = jwt.verify(token, 'your-secret-key');
-        const query = yield conn.query("SELECT marked FROM users WHERE id=(?)", decoded.userId);
-        const marked = JSON.parse(query[0].marked);
-        const index = marked.indexOf(req.body);
-        if (index !== -1) {
-            marked.splice(index, 1);
-        }
-        else {
-            marked.push(req.body.toString());
-        }
-        yield conn.query("UPDATE users SET marked = ? WHERE id = ?", [JSON.stringify(marked), decoded.userId]);
         res.status(201).json({ action: index == -1 ? "added" : "removed" });
     }
     catch (error) {

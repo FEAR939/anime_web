@@ -4,7 +4,6 @@
     const anime_episodeslist = document.body.querySelector(".anime_episodes_list");
     let player;
     let seen;
-    let marked;
     const cookie = localStorage.getItem("cookie");
     if (cookie) {
         fetch("/get-seen", {
@@ -14,15 +13,7 @@
             }
         }).then(response => response.json()).then(text => {
             seen = JSON.parse(text.seen);
-            fetch("/get-marked", {
-                method: "GET",
-                headers: {
-                    "Authorization": cookie
-                }
-            }).then(response => response.json()).then(text => {
-                marked = JSON.parse(text.marked);
-                render_watch();
-            });
+            render_watch();
         });
     } else {
         render_watch();
@@ -98,39 +89,6 @@
         anime_desc.className = "anime_desc";
         anime_desc.textContent = desc;
         anime_box.appendChild(anime_desc);
-
-        const anime_marked = document.createElement("button");
-        anime_marked.className = "anime_marked";
-        anime_marked.textContent = "Add to Watchlist";
-        anime_box.appendChild(anime_marked);
-
-        if (cookie) {
-            if (marked.indexOf(url) !== -1) {
-                anime_marked.textContent = "Remove from Watchlist";
-            }
-
-            anime_marked.onclick = () => {
-                fetch("/handle-marked", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": cookie,
-                    },
-                    body: url,
-                }).then(response => {
-                    if (response.status == 401) return console.log("Error marking episode as seen/unseen");
-                    return response.json();
-                }).then(result => {
-                    if (result.action == "added") {
-                        anime_marked.textContent = "Remove from Watchlist";
-                        return;
-                    }
-                    if (result.action == "removed") {
-                        anime_marked.textContent = "Add to Watchlist";
-                        return;
-                    }
-                })
-            }
-        }
 
         // get anime seasons
 
