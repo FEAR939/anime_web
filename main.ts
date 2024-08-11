@@ -86,6 +86,15 @@ app.get("/get-avatar", async (req: Request, res: Response) => {
     conn.release();
 });
 
+// Routes for watchlist page
+app.get("/watchlist", (req: Request, res: Response) => {
+    res.status(200).setHeader("Content-Type", "text/html").send(fs.readFileSync(path.join(__dirname, "/public/watchlist/index.html"), "utf8"));
+});
+
+app.get("/public/watchlist/script.js", (req: Request, res: Response) => {
+    res.status(200).setHeader("Content-Type", "text/javascript").send(fs.readFileSync(path.join(__dirname, "/public/watchlist/script.js"), "utf8"));
+});
+
 // Routes for Ressources
 app.get("/public/icons8-search.png", (req: Request, res: Response) => {
     const stream = fs.createReadStream(path.join(__dirname, "/public/icons8-search.png"));
@@ -201,6 +210,43 @@ app.post("/handle-seen", async (req: Request, res: Response) => {
             seen.push(req.body.toString());
         }
         await conn.query("UPDATE users SET seen = ? WHERE id = ?", [JSON.stringify(seen), (<any>decoded).userId]);
+        res.status(201).json({ action: index == -1 ? "added" : "removed" });
+    } catch (error) {
+        res.status(401).json({ error: "Invalid token" });
+    }
+    conn.release();
+});
+
+// routes for marked
+app.get("/get-marked", async (req: Request, res: Response) => {
+    const conn = await pool.getConnection();
+    const token = req.header("Authorization");
+    if (!token) return res.status(401).json({ error: "Access denied" });
+    try {
+        const decoded = jwt.verify(token, 'your-secret-key');
+        const marked = await conn.query("SELECT marked from users WHERE id=(?)", (<any>decoded).userId);
+        res.status(200).send(marked[0]);
+    } catch (error) {
+        res.status(401).json({ error: "Invalid token" });
+    }
+    conn.release();
+});
+
+app.post("/handle-marked", async (req: Request, res: Response) => {
+    const conn = await pool.getConnection();
+    const token = req.header("Authorization");
+    if (!token) return res.status(401).json({ error: "Acces denied" });
+    try {
+        const decoded = jwt.verify(token, 'your-secret-key');
+        const query = await conn.query("SELECT marked FROM users WHERE id=(?)", (<any>decoded).userId);
+        const marked: Array<String> = JSON.parse(query[0].marked);
+        const index = marked.indexOf(req.body); 
+        if (index !== -1) {
+            marked.splice(index, 1);
+        } else {
+            marked.push(req.body.toString());
+        }
+        await conn.query("UPDATE users SET marked = ? WHERE id = ?", [JSON.stringify(marked), (<any>decoded).userId]);
         res.status(201).json({ action: index == -1 ? "added" : "removed" });
     } catch (error) {
         res.status(401).json({ error: "Invalid token" });
