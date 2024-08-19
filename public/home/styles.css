@@ -102,6 +102,13 @@ body {
     width: 100%;
     font-size: 12px;
     color: rgb(255, 255, 255);
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.account_panel > *:hover {
+    background: rgb(38, 38, 38);
 }
 
 .logout_btn {
@@ -192,10 +199,11 @@ body {
 }
 
 .home_card_image {
-    height: fit-content;
+    aspect-ratio: 0.64/1;
     width: 100%;
     display: block;
     border-radius: 8px;
+    background: rgb(38, 38, 38);
 }
 
 .home_card_box {
@@ -572,13 +580,13 @@ body {
 
 .box {
     height: 50%;
-    width: 100%;
+    width: calc(100% - 32px);
     background: rgb(38, 38, 38);
     padding: 16px;
     border-radius: 15px;
     display: flex;
     justify-content: center;
-    margin-bottom: 12px;
+    margin: 12px 16px;
 }
 
 #show {
@@ -590,6 +598,8 @@ body {
 }
 
 #upload {
+    width: calc(100% - 32px);
+    margin: 0 16px;
     padding: 8px;
     background: rgb(38, 38, 38);
     color: rgb(255, 255, 255);
@@ -607,9 +617,44 @@ body {
     margin-right: 8px;
 }
 
+.options {
+    height: fit-content;
+    width: calc(100% - 32px);
+    display: flex;
+    flex-direction: column;
+    margin: 12px 16px;
+}
+
+.option {
+    height: 48px;
+    width: 100%;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgb(38, 38, 38);
+    border-radius: 8px;
+}
+
+.option_head {
+    font-size: 14px;
+    color: rgb(255, 255, 255);
+}
+
 #submit {
+    width: calc(100% - 32px);
+    margin: 0 16px;
     padding: 16px 32px;
     background: rgb(38, 38, 38);
     color:rgb(255, 255, 255);
     border-radius: 8px;
+}
+
+.plot {
+    width: calc(100% - 32px);
+    aspect-ratio: 3/1;
+    padding: 16px;
+    background: rgb(30, 30, 30);
+    margin: 16px;
+    border-radius: 16px;
 }

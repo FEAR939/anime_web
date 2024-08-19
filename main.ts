@@ -1,4 +1,4 @@
-import express, { Express, Request, Response } from "express";
+import express, { Express, NextFunction, Request, Response } from "express";
 import mariadb from "mariadb";
 const app = express();
 import * as fs from "fs";
@@ -17,6 +17,41 @@ const pool = mariadb.createPool({
     user: "anime_web",
     password: "anime_web",
     database: "anime_web"
+});
+
+var hourUtil: Array<{ value: number, timestamp: number }> = []
+
+function handleHourUtil(value: number, timestamp: number) {
+    const index = hourUtil.findIndex((minute) => {
+        return minute.timestamp == timestamp;
+    });
+    
+    if (index != -1) {
+        hourUtil[index].value += value;
+        return;
+    }
+
+    hourUtil.push({ value: value, timestamp: timestamp });
+    if (hourUtil.length == 61) hourUtil.shift();
+}
+
+function hourInterval() {
+    handleHourUtil(0, new Date().getMinutes());
+    const now: Date = new Date();
+    const later: Date = new Date(now);
+    later.setMinutes(later.getMinutes() + 1, 0, 0);
+    const difference = later.getTime() - now.getTime();
+    setTimeout(hourInterval, difference);
+}
+
+// Handler for logging requests
+app.use((req: Request, res: Response, next: NextFunction) => {
+    handleHourUtil(1, new Date().getMinutes());
+    next();
+});
+
+app.get("/dashboard/getHour", (req: Request, res: Response) => {
+    res.status(200).setHeader("Content-Type", "application/json").send(JSON.stringify(hourUtil));
 });
 
 // Routes for home page
@@ -93,6 +128,15 @@ app.get("/watchlist", (req: Request, res: Response) => {
 
 app.get("/public/watchlist/script.js", (req: Request, res: Response) => {
     res.status(200).setHeader("Content-Type", "text/javascript").send(fs.readFileSync(path.join(__dirname, "/public/watchlist/script.js"), "utf8"));
+});
+
+// Routes for Dashboard
+app.get("/dashboard", (req: Request, res: Response) => {
+    res.status(200).setHeader("Content-Type", "text/html").send(fs.readFileSync(path.join(__dirname, "/public/dashboard/index.html"), "utf8"));
+});
+
+app.get("/public/dashboard/script.js", (req: Request, res: Response) => {
+    res.status(200).setHeader("Content-Type", "text/javascript").send(fs.readFileSync(path.join(__dirname, "/public/dashboard/script.js"), "utf8"));
 });
 
 // Routes for Ressources
@@ -256,4 +300,5 @@ app.post("/handle-marked", async (req: Request, res: Response) => {
 
 app.listen(PORT, () => {
     console.log("Server running on Port: %s", PORT);
+    hourInterval();
 });

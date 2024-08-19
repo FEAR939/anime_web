@@ -56,6 +56,12 @@
             change_avatar.href = "/avatar";
             account_panel.appendChild(change_avatar);
 
+            const dashboard_btn = document.createElement("a");
+            dashboard_btn.className = "dashboard_btn";
+            dashboard_btn.textContent = "Dashboard";
+            dashboard_btn.href = "/dashboard";
+            account_panel.appendChild(dashboard_btn);
+
             const logout_btn = document.createElement("button");
             logout_btn.className = "logout_btn";
             logout_btn.textContent = "Logout";
@@ -135,21 +141,12 @@
 
         const anime_elements = doc.querySelector(".carousel").querySelectorAll(".coverListItem a");
 
-        anime_elements.forEach(async (anime_element) => {
+        anime_elements.forEach((anime_element) => {
             // get anime link
 
             const redirect = anime_element.getAttribute("href");
-            var image;
+            const image = anime_element.querySelector("img").getAttribute("data-src");
             const title = anime_element.querySelector("h3").textContent.trim();
-
-            await get_dom("https://aniworld.to" + redirect).then(dom => {
-                image = dom.querySelector(".seriesCoverBox img").getAttribute("data-src");
-            });
-
-            // const doc = await get_dom("https://aniworld.to" + redirect);
-            // const genres = Array.from(doc.querySelectorAll(".genres a")).map((genre) => genre.textContent);
-            // const desc = doc.querySelector(".seri_des").getAttribute("data-full-description");
-            // const rating = doc.querySelector(".starRatingResult strong").textContent;
 
             // create DOM element
 

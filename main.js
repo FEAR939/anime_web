@@ -52,6 +52,35 @@ const pool = mariadb_1.default.createPool({
     password: "anime_web",
     database: "anime_web"
 });
+var hourUtil = [];
+function handleHourUtil(value, timestamp) {
+    const index = hourUtil.findIndex((minute) => {
+        return minute.timestamp == timestamp;
+    });
+    if (index != -1) {
+        hourUtil[index].value += value;
+        return;
+    }
+    hourUtil.push({ value: value, timestamp: timestamp });
+    if (hourUtil.length == 61)
+        hourUtil.shift();
+}
+function hourInterval() {
+    handleHourUtil(0, new Date().getMinutes());
+    const now = new Date();
+    const later = new Date(now);
+    later.setMinutes(later.getMinutes() + 1, 0, 0);
+    const difference = later.getTime() - now.getTime();
+    setTimeout(hourInterval, difference);
+}
+// Handler for logging requests
+app.use((req, res, next) => {
+    handleHourUtil(1, new Date().getMinutes());
+    next();
+});
+app.get("/dashboard/getHour", (req, res) => {
+    res.status(200).setHeader("Content-Type", "application/json").send(JSON.stringify(hourUtil));
+});
 // Routes for home page
 app.get("/", (req, res) => {
     res.status(200).setHeader("Content-Type", "text/html").send(fs.readFileSync(path.join(__dirname, "/public/home/index.html"), "utf8"));
@@ -119,6 +148,13 @@ app.get("/watchlist", (req, res) => {
 });
 app.get("/public/watchlist/script.js", (req, res) => {
     res.status(200).setHeader("Content-Type", "text/javascript").send(fs.readFileSync(path.join(__dirname, "/public/watchlist/script.js"), "utf8"));
+});
+// Routes for Dashboard
+app.get("/dashboard", (req, res) => {
+    res.status(200).setHeader("Content-Type", "text/html").send(fs.readFileSync(path.join(__dirname, "/public/dashboard/index.html"), "utf8"));
+});
+app.get("/public/dashboard/script.js", (req, res) => {
+    res.status(200).setHeader("Content-Type", "text/javascript").send(fs.readFileSync(path.join(__dirname, "/public/dashboard/script.js"), "utf8"));
 });
 // Routes for Ressources
 app.get("/public/icons8-search.png", (req, res) => {
@@ -281,4 +317,5 @@ app.post("/handle-marked", (req, res) => __awaiter(void 0, void 0, void 0, funct
 }));
 app.listen(PORT, () => {
     console.log("Server running on Port: %s", PORT);
+    hourInterval();
 });
