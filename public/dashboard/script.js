@@ -17,36 +17,23 @@ const Widthsteps = (plot.width - numberPadding) / amountOfValues;
 
 function renderPlot(points) {
     ctx.reset();
-    ctx.strokeStyle = "rgb(40, 40, 40)";
-    for (var i = 0; i < plot.width / Widthsteps; i++) {
-        ctx.beginPath();
-        ctx.moveTo((i * Widthsteps) + numberPadding, numberPadding);
-        ctx.lineTo((i * Widthsteps) + numberPadding, plot.height - numberPadding);
-        ctx.closePath();
-        
-        ctx.stroke();
-    }
 
     const maxValue =  Math.max(...points.map(point => point.value)) + plotPadding;
-    const Heightsteps = (plot.height - (numberPadding * 2)) / maxValue;
+    const Heightsteps = (plot.height - numberPadding) / maxValue;
 
     ctx.font = "12px system-ui";
     ctx.fillStyle = "rgb(200, 200, 200)";
-    const numbersCount = Math.floor((plot.height - (2 * numberPadding)) / (12 + numberPadding));
     
     for (var i = 0; i < maxValue; i++) {
-        if (i % numbersCount !== 0) continue;
         ctx.fillText(i, 0, (plot.height - numberPadding + 6) - (i * Heightsteps));
     }
 
     ctx.strokeStyle = "rgb(126, 89, 223)";
     for (var i = 0; i < points.length; i++) {
         ctx.fillStyle = ctx.fillStyle = "rgb(200, 200, 200)";
-        ctx.fillText(points[i].timestamp, (i * Widthsteps) + numberPadding - 6, plot.height - 12);
+        ctx.fillText(points[i].timestampMin, (i * Widthsteps) + numberPadding - 6, plot.height - 12);
         ctx.fillStyle = "rgb(126, 89, 223)";
         ctx.beginPath();
-        ctx.arc((i * Widthsteps) + numberPadding, (plot.height - numberPadding) - (points[i].value * Heightsteps), 4, 0, 2 * Math.PI);
-        ctx.fill();
         if (i !== points.length - 1) {
             ctx.lineWidth = 2;
             ctx.moveTo((i * Widthsteps) + numberPadding, (plot.height - numberPadding) - (points[i].value * Heightsteps));

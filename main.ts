@@ -19,11 +19,11 @@ const pool = mariadb.createPool({
     database: "anime_web"
 });
 
-var hourUtil: Array<{ value: number, timestamp: number }> = []
+var hourUtil: Array<{ value: number, timestampHour: number, timestampMin: number }> = []
 
-function handleHourUtil(value: number, timestamp: number) {
+function handleHourUtil(value: number, timestampHour: number, timestampMin: number) {
     const index = hourUtil.findIndex((minute) => {
-        return minute.timestamp == timestamp;
+        return minute.timestampHour == timestampHour && minute.timestampMin == timestampMin;
     });
     
     if (index != -1) {
@@ -31,12 +31,12 @@ function handleHourUtil(value: number, timestamp: number) {
         return;
     }
 
-    hourUtil.push({ value: value, timestamp: timestamp });
-    if (hourUtil.length == 61) hourUtil.shift();
+    hourUtil.push({ value: value, timestampHour: timestampHour, timestampMin: timestampMin });
+    if (hourUtil.length > 60) hourUtil.shift();
 }
 
 function hourInterval() {
-    handleHourUtil(0, new Date().getMinutes());
+    handleHourUtil(0, new Date().getHours(), new Date().getMinutes());
     const now: Date = new Date();
     const later: Date = new Date(now);
     later.setMinutes(later.getMinutes() + 1, 0, 0);
@@ -46,7 +46,7 @@ function hourInterval() {
 
 // Handler for logging requests
 app.use((req: Request, res: Response, next: NextFunction) => {
-    handleHourUtil(1, new Date().getMinutes());
+    handleHourUtil(1, new Date().getHours(), new Date().getMinutes());
     next();
 });
 

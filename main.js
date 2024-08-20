@@ -53,20 +53,20 @@ const pool = mariadb_1.default.createPool({
     database: "anime_web"
 });
 var hourUtil = [];
-function handleHourUtil(value, timestamp) {
+function handleHourUtil(value, timestampHour, timestampMin) {
     const index = hourUtil.findIndex((minute) => {
-        return minute.timestamp == timestamp;
+        return minute.timestampHour == timestampHour && minute.timestampMin == timestampMin;
     });
     if (index != -1) {
         hourUtil[index].value += value;
         return;
     }
-    hourUtil.push({ value: value, timestamp: timestamp });
-    if (hourUtil.length == 61)
+    hourUtil.push({ value: value, timestampHour: timestampHour, timestampMin: timestampMin });
+    if (hourUtil.length > 60)
         hourUtil.shift();
 }
 function hourInterval() {
-    handleHourUtil(0, new Date().getMinutes());
+    handleHourUtil(0, new Date().getHours(), new Date().getMinutes());
     const now = new Date();
     const later = new Date(now);
     later.setMinutes(later.getMinutes() + 1, 0, 0);
@@ -75,7 +75,7 @@ function hourInterval() {
 }
 // Handler for logging requests
 app.use((req, res, next) => {
-    handleHourUtil(1, new Date().getMinutes());
+    handleHourUtil(1, new Date().getHours(), new Date().getMinutes());
     next();
 });
 app.get("/dashboard/getHour", (req, res) => {
