@@ -76,6 +76,7 @@ function hourInterval() {
 // Handler for logging requests and CORS Origin
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Authorization');
     handleHourUtil(1, new Date().getHours(), new Date().getMinutes());
     next();
 });
