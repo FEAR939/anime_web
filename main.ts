@@ -46,6 +46,7 @@ function hourInterval() {
 
 // Handler for logging requests
 app.use((req: Request, res: Response, next: NextFunction) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
     handleHourUtil(1, new Date().getHours(), new Date().getMinutes());
     next();
 });
