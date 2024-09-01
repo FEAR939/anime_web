@@ -73,8 +73,9 @@ function hourInterval() {
     const difference = later.getTime() - now.getTime();
     setTimeout(hourInterval, difference);
 }
-// Handler for logging requests
+// Handler for logging requests and CORS Origin
 app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
     handleHourUtil(1, new Date().getHours(), new Date().getMinutes());
     next();
 });
