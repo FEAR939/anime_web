@@ -32,9 +32,10 @@ body {
 
 .interaction {
     position: absolute;
-    top: 24px;
-    right: 24px;
-    height: 24px;
+    z-index: 1;
+    top: 16px;
+    right: 16px;
+    height: 30px;
     width: 50%;
     display: flex;
     align-items: center;
@@ -47,18 +48,25 @@ body {
     aspect-ratio: 1;
     display: flex;
     align-items: center;
+    background: rgba(127, 127, 127, 0.5);
+    border-radius: 50%;
+    backdrop-filter: blur(10px);
 }
 
 .login {
-    color: rgb(255, 255, 255);
+    color: rgba(127, 127, 127, 0.5);
 }
 
 .back {
     position: fixed;
-    display: block;
-    height: 24px;
-    width: 24px;
-    margin: 24px 0 0 24px;
+    height: 30px;
+    width: 30px;
+    margin: 16px;
+    display: flex;
+    align-items: center;
+    background: rgba(127, 127, 127, 0.5);
+    border-radius: 50%;
+    backdrop-filter: blur(10px);
 }
 
 .search img, .back img {
@@ -94,30 +102,32 @@ body {
     padding: 8px;
     background: rgb(30, 30, 30);
     z-index: 100;
-    border-radius: 15px;
+    border-radius: 12px;
     display: none;
+    flex-direction: column;
+    gap: 2px;
 }
 
-.account_panel > * {
+.account_panel > *,
+.account_panel a {
+    height: 30px;
     width: 100%;
+    display: flex;
+    align-items: center;
     font-size: 12px;
+    background: rgb(38, 38, 38);
     color: rgb(255, 255, 255);
     padding: 4px 8px;
-    border-radius: 4px;
+    border-radius: 8px;
     cursor: pointer;
 }
 
 .account_panel > *:hover {
-    background: rgb(38, 38, 38);
-}
-
-.logout_btn {
-    color: rgb(200, 0, 0);
-    text-align: start;
+    background: rgb(46, 46, 46);
 }
 
 .heading {
-    padding: 24px 24px 0 24px;
+    padding: 16px 16px 0 16px;
     font-size: 16px;
     font-weight: 600;
     color: rgb(255, 255, 255);
@@ -126,7 +136,7 @@ body {
 .anime_slider {
     height: fit-content;
     width: 100%;
-    padding: 12px 24px 12px 24px;
+    position: relative;
 }
 
 .anime_slider_container {
@@ -145,11 +155,13 @@ body {
     height: 100%;
     width: 100%;
     object-fit: cover;
-    border-radius: 8px;
     display: block;
 }
 
 .anime_slider_textbox {
+    position: absolute;
+    left: 8px;
+    bottom: 8px;
     margin-top: 8px;
     color: rgb(255, 255, 255);
     font-size: 14px;
@@ -157,6 +169,7 @@ body {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+    max-width: 75%;
 }
 
 .anime_slider_index {
@@ -165,7 +178,7 @@ body {
     position: absolute;
     right: 8px;
     bottom: 8px;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(127, 127, 127, 0.5);
     color: rgb(255, 255, 255);
     border-radius: 8px;
     padding: 4px 8px;
@@ -183,9 +196,9 @@ body {
     height: fit-content;
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
-    padding: 12px 24px 24px 24px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 16px;
     color: rgb(255, 255, 255);
 }
 
@@ -213,7 +226,7 @@ body {
 
 .home_card_title {
     width: 100%;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
     color: rgb(255, 255, 255);
     white-space: nowrap;
@@ -252,7 +265,7 @@ body {
 
 .search_bar {
     width: calc(100% - 48px);
-    padding: 8px;
+    padding: 12px;
     margin: 56px 24px 0 24px;
     background: rgb(39, 39, 39);
     border-radius: 18px;
@@ -268,7 +281,7 @@ body {
 }
 
 .search_bar img {
-    height: 20px;
+    height: 16px;
     display: block;
 }
 
@@ -304,38 +317,48 @@ body {
     background: rgba(30, 30, 30, 1);
 }
 
-.anime_info {
-    height: fit-content;
-    width: 100%;
-    display: flex;
-    overflow: hidden;
-    align-items: center;
-    border-bottom: 2px solid rgb(46, 46, 46);
-    padding: 16px;
-    margin-top: 32px;
-}
-
 .anime_image {
+    position: fixed;
+    z-index: -1;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
     display: block;
-    height: fit-content;
-    width: 35%;
-    border-radius: 8px;
-    margin: 8px;
+    height: 100%;
+    width: 100%;
 }
 
-.anime_box {
-    width: 65%;
+.inner_wrapper {
+    position: absolute;
+    top: 0;
+    margin-top: 40vh;
+    height: 60vh;
+    width: 100%;
+    overflow-y: scroll;
+    background: linear-gradient(to bottom, rgb(0, 0, 0, 0) 0%, rgb(0, 0, 0, 1) 80%);
+    -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 80%, rgba(0,0,0,0));
+}
+
+.anime_info {
+    position: relative;
+    margin-top: 40%;
+    height: 70%;
+    width: 100%;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
 }
 
 .anime_title {
-    width: 95%;
+    width: 85%;
     display: block;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     padding: 8px 0;
     color: rgb(255, 255, 255);
-    font-size: 14px;
+    font-size: 20px;
 }
 
 .anime_genres {
@@ -350,25 +373,32 @@ body {
     font-size: 10px;
     line-height: 20px;
     padding: 2px 8px;
-    background: rgb(39, 39, 39);
+    background: rgba(0, 0, 0, 0.25);
     border-radius: 14px;
     color: rgb(255, 255, 255);
     cursor: pointer;
     white-space: nowrap;
+    margin-bottom: 12px;
 }
 
 .anime_rating {
     color: rgb(255, 255, 255);
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
     margin-top: 8px;
-    position: relative;
+    position: absolute;
+    top: 2px;
+    right: 16px;
     display: flex;
     align-items: center;
+    background: rgb(30, 30, 30);
+    width: fit-content;
+    padding: 4px 8px;
+    border-radius: 8px;
 }
 
 .anime_rating img {
-    height: 11px;
+    height: 10px;
     aspect-ratio: 1;
     display: block;
     object-fit: contain;
@@ -376,12 +406,16 @@ body {
 }
 
 .anime_desc {
-    font-size: 12px;
-    color: rgb(100, 100, 100);
-    display: -webkit-box;
-    -webkit-line-clamp: 5;
-    -webkit-box-orient: vertical;
+    height: 60%;
+    font-size: 14px;
+    color: rgb(150, 150, 150);
     overflow: hidden;
+}
+
+.desc_heading {
+    font-size: 14px;
+    color: rgb(255, 255, 255);
+    margin-bottom: 12px;
 }
 
 .anime_marked {
@@ -397,14 +431,14 @@ body {
 
 .anime_seasons {
     padding: 16px;
-    margin: 24px;
+    margin: 16px;
     margin-top: 24px;
     background: rgb(30, 30, 30);
     border-radius: 16px;
 }
 
 .anime_episodes {
-    margin: 24px;
+    margin: 16px;
 }
 
 .anime_seasons_header, .anime_episodes_header {
@@ -429,15 +463,15 @@ body {
     display: flex;
     flex-direction: column;
     margin-top: 8px;
-    background: rgb(30, 30, 30);
     border-radius: 16px;
+    gap: 16px;
 }
 
 .anime_season {
     background: rgb(38, 38, 38);
-    border-radius: 8px;
+    border-radius: 16px;
     color: rgb(255, 255, 255);
-    padding: 8px 16px;
+    padding: 12px 16px;
 }
 
 .msg {
@@ -448,22 +482,16 @@ body {
 .anime_episode {
     background: rgb(30, 30, 30);
     color: rgb(255, 255, 255);
-    padding: 8px;
-    margin: 0 16px;
+    padding: 16px;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 8px;
     position: relative;
-    border-bottom: 1px solid rgb(80, 80, 80);
+    border-radius: 16px;
 
     &:first-of-type {
         margin-top: 16px;
-    }
-
-    &:last-of-type {
-        margin-bottom: 16px;
-        border-bottom: none;
     }
 }
 
@@ -490,10 +518,10 @@ body {
 
 .anime_episode_seen {
     position: absolute;
-    right: 0;
+    right: 16px;
     height: fit-content;
     width: fit-content;
-    padding: 8px 16px;
+    padding: 16px;
     font-size: 14px;
     line-height: 21px;
     font-weight: 600;
@@ -509,7 +537,6 @@ body {
 
 .anime_episode_seen img {
     height: 14px;
-    margin-right: 8px;
     object-fit: cover;
 }
 
@@ -520,16 +547,28 @@ body {
     right: 8px;
     width: 60%;
     aspect-ratio: 16 / 9;
+    border-radius: 16px;
+    overflow: hidden;
 }
 
 .video_exit {
-    color: rgb(255, 255, 255);
     position: absolute;
-    top: 0;
-    right: 8px;
+    top: 8px;
+    left: 8px;
     z-index: 999;
-    height: fit-content;
-    width: fit-content;
+    height: 30px;
+    width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(127, 127, 127, 0.5);
+    padding: 4px 8px;
+    border-radius: 50%;
+}
+
+.video_exit img {
+    height: 16px;
+    display: block;
 }
 
 .video_player {

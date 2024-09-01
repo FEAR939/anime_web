@@ -1,4 +1,6 @@
 (() => {
+    const container = document.body.querySelector(".container");
+    const interaction = document.body.querySelector(".interaction");
     const anime_info = document.body.querySelector(".anime_info");
     const anime_seasonslist = document.body.querySelector(".anime_seasons_list");
     const anime_episodeslist = document.body.querySelector(".anime_episodes_list");
@@ -26,6 +28,74 @@
         });
     } else {
         render_watch();
+    }
+
+    if (!cookie) {
+        const login = document.createElement("a");
+        login.className = "login";
+        login.textContent = "Login";
+        login.href = "/login";
+        interaction.appendChild(login);
+    } else {
+        fetch("/get-avatar", {
+            headers: {
+                'Authorization': cookie,
+            }
+        }).then(response => response.json()).then(text => {
+            const account = document.createElement("div");
+            account.className = "account";
+            interaction.appendChild(account);
+
+            const avatar = document.createElement("img");
+            avatar.className = "user_avatar";
+            avatar.src = text.avatar;
+            account.appendChild(avatar);
+
+            const account_panel = document.createElement("div");
+            account_panel.className = "account_panel";
+            account.appendChild(account_panel);
+
+            avatar.onclick = () => {
+                switch(window.getComputedStyle(account_panel, null).display) {
+                    case "none": {
+                        account_panel.style.display = "flex";
+                        break;
+                    }
+                    case "flex": {
+                        account_panel.style.display = "none";
+                        break;
+                    }
+                }
+            }
+
+            const watchlist_btn = document.createElement("a");
+            watchlist_btn.className = "watchlist_btn";
+            watchlist_btn.textContent = "Your Watchlist";
+            watchlist_btn.href = "/watchlist";
+            account_panel.appendChild(watchlist_btn);
+
+            const change_avatar = document.createElement("a");
+            change_avatar.className = "change_avatar";
+            change_avatar.textContent = "Change Avatar";
+            change_avatar.href = "/avatar";
+            account_panel.appendChild(change_avatar);
+
+            const dashboard_btn = document.createElement("a");
+            dashboard_btn.className = "dashboard_btn";
+            dashboard_btn.textContent = "Dashboard";
+            dashboard_btn.href = "/dashboard";
+            account_panel.appendChild(dashboard_btn);
+
+            const logout_btn = document.createElement("div");
+            logout_btn.className = "logout_btn";
+            logout_btn.textContent = "Logout";
+            account_panel.appendChild(logout_btn);
+
+            logout_btn.onclick = () => {
+                localStorage.removeItem("cookie");
+                window.location.reload();
+            }
+        });
     }
 
 
@@ -61,26 +131,16 @@
         const anime_image = document.createElement("img");
         anime_image.className = "anime_image";
         anime_image.src = "https://aniworld.to" + image;
-        anime_info.appendChild(anime_image);
-
-        const anime_box = document.createElement("div");
-        anime_box.className = "anime_box";
-        anime_info.appendChild(anime_box);
-        anime_box.offsetHeight = anime_image.offsetHeight;
-
-        anime_image.onload = () => {
-            window.onresize = () => anime_box.style.height = anime_image.height + "px";
-            anime_box.style.height = anime_image.height + "px"
-        };
+        container.appendChild(anime_image);
 
         const anime_title = document.createElement("div");
         anime_title.className = "anime_title";
         anime_title.textContent = title;
-        anime_box.appendChild(anime_title);
+        anime_info.appendChild(anime_title);
 
         const anime_genres = document.createElement("div");
         anime_genres.className = "anime_genres";
-        anime_box.appendChild(anime_genres);
+        anime_info.appendChild(anime_genres);
 
         genres.forEach(genre => {
             const anime_genre = document.createElement("div");
@@ -92,17 +152,17 @@
         const anime_rating = document.createElement("div");
         anime_rating.className = "anime_rating";
         anime_rating.innerHTML = rating + '<img src="/public/icons8-star.png">';
-        anime_box.appendChild(anime_rating);
+        anime_info.appendChild(anime_rating);
 
         const anime_desc = document.createElement("div");
         anime_desc.className = "anime_desc";
-        anime_desc.textContent = desc;
-        anime_box.appendChild(anime_desc);
+        anime_desc.innerHTML = "<p><div class='desc_heading'>About</div></p>" + desc;
+        anime_info.appendChild(anime_desc);
 
         const anime_marked = document.createElement("button");
         anime_marked.className = "anime_marked";
         anime_marked.textContent = "Add to Watchlist";
-        anime_box.appendChild(anime_marked);
+        anime_info.appendChild(anime_marked);
 
         if (cookie) {
             if (marked.indexOf(url) !== -1) {
@@ -189,12 +249,12 @@
 
                     const anime_episode_seen = document.createElement("button");
                     anime_episode_seen.className = "anime_episode_seen";
-                    anime_episode_seen.innerHTML = "<img src='/public/icons8-bookmark-outlined.png'> Subscribe";
+                    anime_episode_seen.innerHTML = "<img src='/public/icons8-bookmark-filled.png'>";
                     anime_episode.appendChild(anime_episode_seen);
 
                     if (cookie) {
                         if (seen.indexOf(redirect) !== -1) {
-                            anime_episode_seen.innerHTML = "<img src='/public/icons8-bookmark-filled.png'> Subscribed";
+                            anime_episode_seen.style.background = "rgb(127,0,255)";
                         }
 
                         anime_episode_seen.onclick = () => {
@@ -209,11 +269,11 @@
                                 return response.json();
                             }).then(result => {
                                 if (result.action == "added") {
-                                    anime_episode_seen.innerHTML = "<img src='/public/icons8-bookmark-filled.png'> Subscribed";
+                                    anime_episode_seen.style.background = "rgb(127,0,255)";
                                     return;
                                 }
                                 if (result.action == "removed") {
-                                    anime_episode_seen.innerHTML = "<img src='/public/icons8-bookmark-outlined.png'> Subscribe";
+                                    anime_episode_seen.style.background = "rgb(39,39,39)";
                                     return;
                                 }
                             })
@@ -261,7 +321,7 @@
 
                             const video_exit = document.createElement("div");
                             video_exit.className = "video_exit";
-                            video_exit.textContent = "x";
+                            video_exit.innerHTML = "<img src='/public/icons8-arrowleft.png' />";
                             video_container.appendChild(video_exit);
 
                             video_exit.onclick = () => {

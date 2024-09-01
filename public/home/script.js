@@ -34,10 +34,10 @@
             avatar.onclick = () => {
                 switch(window.getComputedStyle(account_panel, null).display) {
                     case "none": {
-                        account_panel.style.display = "block";
+                        account_panel.style.display = "flex";
                         break;
                     }
-                    case "block": {
+                    case "flex": {
                         account_panel.style.display = "none";
                         break;
                     }
@@ -62,7 +62,7 @@
             dashboard_btn.href = "/dashboard";
             account_panel.appendChild(dashboard_btn);
 
-            const logout_btn = document.createElement("button");
+            const logout_btn = document.createElement("div");
             logout_btn.className = "logout_btn";
             logout_btn.textContent = "Logout";
             account_panel.appendChild(logout_btn);
