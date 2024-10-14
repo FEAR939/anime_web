@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.text({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-const PORT: number = 80;
+const PORT: number = 5000;
 
 const pool = mariadb.createPool({
     host: "raspberrypi",
@@ -59,6 +59,10 @@ app.get("/dashboard/getHour", (req: Request, res: Response) => {
 // Routes for home page
 app.get("/", (req: Request, res: Response) => {
     res.status(200).setHeader("Content-Type", "text/html").send(fs.readFileSync(path.join(__dirname, "/public/home/index.html"), "utf8"));
+});
+
+app.get("/public/manifest.json", (req: Request, res: Response) => {
+    res.status(200).setHeader("Content-Type", "application/json").send(fs.readFileSync(path.join(__dirname, "/public/manifest.json"), "utf8"));
 });
 
 app.get("/public/home/styles.css", (req: Request, res: Response) => {
@@ -142,6 +146,12 @@ app.get("/public/dashboard/script.js", (req: Request, res: Response) => {
 });
 
 // Routes for Ressources
+app.get("/public/icon.png", (req: Request, res: Response) => {
+    const stream = fs.createReadStream(path.join(__dirname, "/public/icon.png"));
+    res.status(200).setHeader("Content-Type", "image/png");
+    stream.pipe(res);
+});
+
 app.get("/public/icons8-search.png", (req: Request, res: Response) => {
     const stream = fs.createReadStream(path.join(__dirname, "/public/icons8-search.png"));
     res.status(200).setHeader("Content-Type", "image/png");

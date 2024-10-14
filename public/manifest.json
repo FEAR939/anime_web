@@ -1,0 +1,12 @@
+{
+    "name": "Zeph",
+    "short_name": "Zeph",
+    "display": "standalone",
+    "icons": [
+      {
+        "src": "/public/icon.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+  }

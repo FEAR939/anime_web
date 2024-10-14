@@ -84,7 +84,8 @@ function render_search() {
             .then((response) => response.json())
             .then((text) => {
             // parse dom
-    
+            
+            search_results.innerHTML = ""
             text.forEach((item) => {
                 if (!item.link.includes("/anime/stream/")) return;
     

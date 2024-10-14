@@ -2,8 +2,10 @@
     const anime_slider = document.body.querySelector(".anime_slider_container");
     const anime_slider_textbox = document.body.querySelector(".anime_slider_textbox");
     const anime_slider_index = document.body.querySelector(".anime_slider_index");
-    const anime_cards = document.body.querySelector(".anime_cards");
+    const anime_cards = document.body.querySelector(".anime_cards_slider");
     const interaction = document.body.querySelector(".interaction");
+    const schedule_dropdown = document.body.querySelector(".schedule_date");
+    const schedules_container = document.body.querySelector(".schedules_container");
 
     const cookie = localStorage.getItem("cookie");
     if (!cookie) {
@@ -91,12 +93,12 @@
     async function slider_loop(slides) {
         let currentindex = 0;
         function loop() {
-            slides[currentindex].slide.style.display = "block";
+            anime_slider.appendChild(slides[currentindex].slide);
             anime_slider_textbox.textContent = slides[currentindex].title;
             anime_slider_index.textContent = currentindex + 1 + "/" + slides.length;
 
             setTimeout(() => {
-                slides[currentindex].slide.style.display = "none";
+                slides[currentindex].slide.remove();
                 if (currentindex == (slides.length - 1)) {
                     currentindex = 0;
                 } else {
@@ -107,6 +109,70 @@
         }
 
         loop();
+    }
+
+    async function renderSchedule() {
+        const doc = await get_dom("https://aniworld.to/animekalender");
+
+        const sections = doc.querySelectorAll("section");
+        const schedules = [];
+
+        sections.forEach((section, i) => {
+            const date = section.querySelector("h3").textContent;
+            const option = document.createElement("option");
+            option.value = i;
+            option.textContent = date;
+            schedule_dropdown.appendChild(option);
+
+            const schedule = [];
+
+            const elements = section.querySelectorAll("a");
+
+            elements.forEach(element => {
+                const title = element.querySelector("h3").textContent;
+                const stats = element.querySelectorAll("small");
+                const image = stats[0].querySelector("img").getAttribute("data-src");
+                schedule.push({ "title": title, "ep": stats[0].textContent.trim(), "image": image, "time": stats[1].textContent.trim() });
+            });
+
+            schedules.push(schedule);
+        });
+
+        function renderSchedules(items) {
+            schedules_container.innerHTML = "";
+            items.forEach(item => {
+                const node = document.createElement("div");
+                node.className = "schedule_item";
+
+                const node_title = document.createElement("div");
+                node_title.className = "schedule_item_title";
+                node_title.textContent = item.title;
+                node.appendChild(node_title);
+
+                const node_ep = document.createElement("div");
+                node_ep.className = "schedule_item_ep";
+                node_ep.textContent = item.ep;
+                node.appendChild(node_ep);
+
+                const node_lang = document.createElement("img");
+                node_lang.className = "schedule_item_image";
+                node_lang.src = "https://aniworld.to" + item.image;
+                node.appendChild(node_lang);
+
+                const node_time = document.createElement("div");
+                node_time.className = "schedule_item_time";
+                node_time.textContent = item.time;
+                node.appendChild(node_time);
+
+                schedules_container.appendChild(node);
+            });
+        }
+
+        renderSchedules(schedules[0]);
+
+        schedule_dropdown.addEventListener("change", () => {
+            renderSchedules(schedules[schedule_dropdown.value]);
+        });
     }
 
     async function render_home() {
@@ -120,9 +186,8 @@
             const image = slide.querySelector("img").getAttribute("data-src");
             const title = slide.querySelector("span").textContent;
 
-            const anime_slide = document.createElement("a");
+            const anime_slide = document.createElement("div");
             anime_slide.className = "anime_slide";
-            anime_slide.href = "/";
 
             const anime_slide_image = document.createElement("img");
             anime_slide_image.className = "anime_slide_image";
@@ -133,15 +198,13 @@
                 slide: anime_slide,
                 title: title,
             });
-            
-            anime_slider.appendChild(anime_slide);
         });
 
         slider_loop(slide_elements);
 
         const anime_elements = doc.querySelector(".carousel").querySelectorAll(".coverListItem a");
 
-        anime_elements.forEach((anime_element) => {
+        anime_elements.forEach(async (anime_element) => {
             // get anime link
 
             const redirect = anime_element.getAttribute("href");
@@ -173,4 +236,5 @@
     }
 
     render_home();
+    renderSchedule();
 })()

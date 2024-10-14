@@ -45,7 +45,7 @@ const bcrypt = __importStar(require("bcryptjs"));
 app.use(express_1.default.json());
 app.use(express_1.default.text({ limit: '50mb' }));
 app.use(express_1.default.urlencoded({ extended: true }));
-const PORT = 80;
+const PORT = 5000;
 const pool = mariadb_1.default.createPool({
     host: "raspberrypi",
     user: "anime_web",
@@ -86,6 +86,9 @@ app.get("/dashboard/getHour", (req, res) => {
 // Routes for home page
 app.get("/", (req, res) => {
     res.status(200).setHeader("Content-Type", "text/html").send(fs.readFileSync(path.join(__dirname, "/public/home/index.html"), "utf8"));
+});
+app.get("/public/manifest.json", (req, res) => {
+    res.status(200).setHeader("Content-Type", "application/json").send(fs.readFileSync(path.join(__dirname, "/public/manifest.json"), "utf8"));
 });
 app.get("/public/home/styles.css", (req, res) => {
     res.status(200).setHeader("Content-Type", "text/css").send(fs.readFileSync(path.join(__dirname, "/public/home/styles.css"), "utf8"));
@@ -159,6 +162,11 @@ app.get("/public/dashboard/script.js", (req, res) => {
     res.status(200).setHeader("Content-Type", "text/javascript").send(fs.readFileSync(path.join(__dirname, "/public/dashboard/script.js"), "utf8"));
 });
 // Routes for Ressources
+app.get("/public/icon.png", (req, res) => {
+    const stream = fs.createReadStream(path.join(__dirname, "/public/icon.png"));
+    res.status(200).setHeader("Content-Type", "image/png");
+    stream.pipe(res);
+});
 app.get("/public/icons8-search.png", (req, res) => {
     const stream = fs.createReadStream(path.join(__dirname, "/public/icons8-search.png"));
     res.status(200).setHeader("Content-Type", "image/png");
