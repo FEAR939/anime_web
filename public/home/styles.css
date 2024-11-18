@@ -69,7 +69,8 @@ body {
     backdrop-filter: blur(10px);
 }
 
-.search img, .back img {
+.search img,
+.back img {
     display: block;
     height: 100%;
     width: 100%;
@@ -413,8 +414,16 @@ body {
     height: 60vh;
     width: 100%;
     overflow-y: scroll;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 80%);
-    -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 80%, rgba(0, 0, 0, 0));
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 1) 80%
+    );
+    -webkit-mask-image: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 1) 80%,
+        rgba(0, 0, 0, 0)
+    );
 }
 
 .anime_info {
@@ -483,7 +492,7 @@ body {
 }
 
 .anime_desc {
-    height: 60%;
+    height: 50%;
     font-size: 14px;
     color: rgb(150, 150, 150);
     overflow: hidden;
@@ -496,29 +505,32 @@ body {
 }
 
 .anime_marked {
-    color: rgb(255, 255, 255);
-    background: rgb(38, 38, 38);
+    color: rgb(0, 0, 0);
+    background: rgb(255, 255, 255);
     font-size: 14px;
+    font-weight: 600;
     line-height: 20px;
     padding: 8px 16px;
-    border-radius: 18px;
+    border-radius: 8px;
     margin-top: 12px;
     cursor: pointer;
 }
 
 .anime_seasons {
-    padding: 16px;
-    margin: 16px;
-    margin-top: 24px;
-    background: rgb(30, 30, 30);
-    border-radius: 16px;
+    padding: 28px 16px 16px 16px;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 1) 25%
+    );
 }
 
 .anime_episodes {
-    margin: 16px;
+    background: rgb(0, 0, 0);
 }
 
-.anime_seasons_header, .anime_episodes_header {
+.anime_seasons_header,
+.anime_episodes_header {
     color: rgb(255, 255, 255);
 }
 
@@ -540,15 +552,13 @@ body {
     display: flex;
     flex-direction: column;
     margin-top: 8px;
-    border-radius: 16px;
-    gap: 16px;
 }
 
 .anime_season {
-    background: rgb(38, 38, 38);
-    border-radius: 16px;
+    background: rgb(28, 28, 28);
+    border-radius: 4px;
     color: rgb(255, 255, 255);
-    padding: 12px 16px;
+    padding: 4px 8px;
 }
 
 .msg {
@@ -557,7 +567,6 @@ body {
 }
 
 .anime_episode {
-    background: rgb(30, 30, 30);
     color: rgb(255, 255, 255);
     padding: 16px;
     display: flex;
@@ -565,7 +574,7 @@ body {
     align-items: center;
     gap: 8px;
     position: relative;
-    border-radius: 16px;
+    border-top: 2px solid rgb(60, 60, 60);
 
     &:first-of-type {
         margin-top: 16px;
@@ -586,6 +595,7 @@ body {
 
 .anime_episode_index {
     width: 100%;
+    font-weight: 600;
 }
 
 .anime_episode_title {
@@ -598,14 +608,10 @@ body {
     right: 16px;
     height: fit-content;
     width: fit-content;
-    padding: 16px;
     font-size: 14px;
     line-height: 21px;
     font-weight: 600;
-    background: rgb(39, 39, 39);
-    border-radius: 18.5px;
-    color: rgb(255, 255, 255);
-    margin-left: 8px;
+    color: rgb(30, 30, 30);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -613,7 +619,8 @@ body {
 }
 
 .anime_episode_seen img {
-    height: 14px;
+    height: 24px;
+    color: rgb(30, 30, 30);
     object-fit: cover;
 }
 
@@ -762,7 +769,7 @@ body {
     margin: 0 16px;
     padding: 16px 32px;
     background: rgb(38, 38, 38);
-    color:rgb(255, 255, 255);
+    color: rgb(255, 255, 255);
     border-radius: 8px;
 }
 
