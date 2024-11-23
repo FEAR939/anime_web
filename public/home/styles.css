@@ -603,36 +603,44 @@ body {
     width: calc(100% - 130px);
 }
 
-.anime_episode_seen {
-    position: absolute;
-    right: 16px;
-    height: fit-content;
-    width: fit-content;
-    font-size: 14px;
-    line-height: 21px;
-    font-weight: 600;
-    color: rgb(30, 30, 30);
-    cursor: pointer;
+.anime_episode_playtime {
+    height: 20px;
+    width: 100%;
     display: flex;
     align-items: center;
-    z-index: 1;
+    justify-content: space-around;
 }
 
-.anime_episode_seen img {
-    height: 24px;
-    color: rgb(30, 30, 30);
-    object-fit: cover;
+.anime_episode_playtime_bar {
+    height: 2px;
+    width: 70%;
+    background: rgb(30, 30, 30);
+}
+
+.anime_episode_playtime_bar_progress {
+    height: 100%;
+    width: 0;
+    background: rgb(229, 9, 20);
+}
+
+.anime_episode_playtime_time {
+    text-align: end;
+    width: 30%;
+    color: rgb(100, 100, 100);
 }
 
 .video_container {
     position: fixed;
     z-index: 100;
-    bottom: 8px;
-    right: 8px;
-    width: 60%;
+    inset: 0;
+    height: 100%;
+    width: 100%;
     aspect-ratio: 16 / 9;
-    border-radius: 16px;
     overflow: hidden;
+    backround: rgb(0, 0, 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .video_exit {

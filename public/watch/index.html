@@ -1,36 +1,41 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anime Web</title>
-    <link rel="stylesheet" href="/public/home/styles.css">
-    <link href="https://vjs.zencdn.net/8.12.0/video-js.css" rel="stylesheet" />
-</head>
-<body>
-    <div class="container">
-        <a href="/" class="back">
-            <img src="/public/icons8-arrowleft.png" alt="" class="src">
-        </a>
-        <div class="interaction">
-            <a href="/search" class="search">
-                <img src="/public/icons8-search.png" alt="" class="src">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Anime Web</title>
+        <link rel="stylesheet" href="/public/home/styles.css" />
+        <link
+            href="https://vjs.zencdn.net/8.16.1/video-js.css"
+            rel="stylesheet"
+        />
+    </head>
+    <body>
+        <div class="container">
+            <a href="/" class="back">
+                <img src="/public/icons8-arrowleft.png" alt="" class="src" />
             </a>
-        </div>
-        <div class="inner_wrapper">
-            <div class="anime_info"></div>
-            <div class="anime_seasons">
-                <div class="anime_seasons_header">Seasons</div>
-                <div class="anime_seasons_list"></div>
+            <div class="interaction">
+                <a href="/search" class="search">
+                    <img src="/public/icons8-search.png" alt="" class="src" />
+                </a>
             </div>
-            <div class="anime_episodes">
-                <div class="anime_episodes_heading">Episodes</div>
-                <div class="anime_episodes_list"><div class="msg">No season selected</div></div>
+            <div class="inner_wrapper">
+                <div class="anime_info"></div>
+                <div class="anime_seasons">
+                    <div class="anime_seasons_header">Seasons</div>
+                    <div class="anime_seasons_list"></div>
+                </div>
+                <div class="anime_episodes">
+                    <div class="anime_episodes_heading">Episodes</div>
+                    <div class="anime_episodes_list">
+                        <div class="msg">No season selected</div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://vjs.zencdn.net/8.12.0/video.min.js"></script>
-    <script src="/public/watch/script.js"></script>
-</body>
+        <script src="https://vjs.zencdn.net/8.16.1/video.min.js"></script>
+        <script src="/public/watch/script.js"></script>
+    </body>
 </html>

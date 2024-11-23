@@ -143,6 +143,7 @@
       (genre) => genre.textContent,
     );
     const rating = doc.querySelector(".starRatingResult strong").textContent;
+    // const imdb_link = doc.querySelector(".imdb-link").getAttribute("href");
 
     const anime_image = document.createElement("img");
     anime_image.className = "anime_image";
@@ -265,44 +266,42 @@
           anime_episode_title.className = "anime_episode_title";
           anime_episode.appendChild(anime_episode_title);
 
-          const anime_episode_seen = document.createElement("button");
-          anime_episode_seen.className = "anime_episode_seen";
-          anime_episode_seen.innerHTML =
-            "<img src='/public/icons8-plus-math.png'>";
-          anime_episode.appendChild(anime_episode_seen);
+          var anime_episode_playtime = null;
+          var anime_episode_playtime_bar = null;
+          var anime_episode_playtime_bar_progress = null;
+          var anime_episode_playtime_time = null;
 
           if (cookie) {
-            if (seen.indexOf(redirect) !== -1) {
-              anime_episode_seen.innerHTML =
-                "<img src='/public/icons8-done.png'>";
-            }
+            const index = seen.findIndex(
+              (a) => a.redirect === redirect.toString(),
+            );
+            if (index !== -1) {
+              anime_episode_playtime = document.createElement("div");
+              anime_episode_playtime.className = "anime_episode_playtime";
+              anime_episode.appendChild(anime_episode_playtime);
 
-            anime_episode_seen.onclick = () => {
-              fetch("/handle-seen", {
-                method: "POST",
-                headers: {
-                  Authorization: cookie,
-                },
-                body: redirect,
-              })
-                .then((response) => {
-                  if (response.status == 401)
-                    return console.log("Error marking episode as seen/unseen");
-                  return response.json();
-                })
-                .then((result) => {
-                  if (result.action == "added") {
-                    anime_episode_seen.innerHTML =
-                      "<img src='/public/icons8-done.png'>";
-                    return;
-                  }
-                  if (result.action == "removed") {
-                    anime_episode_seen.innerHTML =
-                      "<img src='/public/icons8-plus-math.png'>";
-                    return;
-                  }
-                });
-            };
+              anime_episode_playtime_bar = document.createElement("div");
+              anime_episode_playtime_bar.className =
+                "anime_episode_playtime_bar";
+              anime_episode_playtime.appendChild(anime_episode_playtime_bar);
+
+              anime_episode_playtime_bar_progress =
+                document.createElement("div");
+              anime_episode_playtime_bar_progress.className =
+                "anime_episode_playtime_bar_progress";
+              anime_episode_playtime_bar_progress.style.width =
+                (seen[index].playtime / seen[index].duration) * 100 + "%";
+              anime_episode_playtime_bar.appendChild(
+                anime_episode_playtime_bar_progress,
+              );
+
+              anime_episode_playtime_time = document.createElement("div");
+              anime_episode_playtime_time.className =
+                "anime_episode_playtime_time";
+              anime_episode_playtime_time.textContent =
+                seen[index].playtime + " / " + seen[index].duration + " Min.";
+              anime_episode_playtime.appendChild(anime_episode_playtime_time);
+            }
           }
 
           // fetch episode dom
@@ -331,11 +330,13 @@
 
             // get video link
 
-            redirect = doc.querySelector(".watchEpisode").getAttribute("href");
+            var video_redirect = doc
+              .querySelector(".watchEpisode")
+              .getAttribute("href");
 
-            console.log(redirect);
+            console.log(video_redirect);
 
-            doc = await get_dom("https://aniworld.to" + redirect);
+            doc = await get_dom("https://aniworld.to" + video_redirect);
 
             if (!document.querySelector(".video_container")) {
               const video_container = document.createElement("div");
@@ -349,9 +350,68 @@
               video_container.appendChild(video_exit);
 
               video_exit.onclick = () => {
+                const playtimeM = Math.floor(video_player.currentTime / 60);
+                const playdurationM = Math.floor(video_player.duration / 60);
+
                 video_player.remove();
                 video_container.remove();
                 player = null;
+
+                if (!cookie) return;
+
+                fetch("/handle-seen", {
+                  method: "POST",
+                  headers: {
+                    Authorization: cookie,
+                  },
+                  body: JSON.stringify({
+                    playtime: playtimeM,
+                    duration: playdurationM,
+                    redirect: redirect,
+                  }),
+                }).then((response) => {
+                  if (response.status == 401)
+                    return console.log("Error marking episode as seen/unseen");
+                  if (
+                    response.status == 201 &&
+                    anime_episode_playtime !== null
+                  ) {
+                    anime_episode_playtime_bar_progress.style.width =
+                      (playtimeM / playdurationM) * 100 + "%";
+                    anime_episode_playtime_time.textContent =
+                      playtimeM + " / " + playdurationM + " Min.";
+                  } else {
+                    anime_episode_playtime = document.createElement("div");
+                    anime_episode_playtime.className = "anime_episode_playtime";
+                    anime_episode.appendChild(anime_episode_playtime);
+
+                    anime_episode_playtime_bar = document.createElement("div");
+                    anime_episode_playtime_bar.className =
+                      "anime_episode_playtime_bar";
+                    anime_episode_playtime.appendChild(
+                      anime_episode_playtime_bar,
+                    );
+
+                    anime_episode_playtime_bar_progress =
+                      document.createElement("div");
+                    anime_episode_playtime_bar_progress.className =
+                      "anime_episode_playtime_bar_progress";
+                    anime_episode_playtime_bar_progress.style.width =
+                      (playtimeM / playdurationM) * 100 + "%";
+                    anime_episode_playtime_bar.appendChild(
+                      anime_episode_playtime_bar_progress,
+                    );
+
+                    anime_episode_playtime_time = document.createElement("div");
+                    anime_episode_playtime_time.className =
+                      "anime_episode_playtime_time";
+                    anime_episode_playtime_time.textContent =
+                      playtimeM + " / " + playdurationM + " Min.";
+                    anime_episode_playtime.appendChild(
+                      anime_episode_playtime_time,
+                    );
+                  }
+                });
               };
 
               const video_player = document.createElement("video");
@@ -359,7 +419,14 @@
               video_player.controls = "True";
               video_container.appendChild(video_player);
 
-              player = videojs(video_player);
+              player = videojs(video_player, {
+                controlBar: {
+                  skipButtons: {
+                    forward: 10,
+                    backward: 10,
+                  },
+                },
+              });
             }
 
             const redirectScript = Array.from(

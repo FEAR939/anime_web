@@ -425,6 +425,12 @@ app.get("/get-seen", async (req: Request, res: Response) => {
   conn.release();
 });
 
+interface Entry {
+  playtime: Number;
+  duration: Number;
+  redirect: String;
+}
+
 app.post("/handle-seen", async (req: Request, res: Response) => {
   const conn = await pool.getConnection();
   const token = req.header("Authorization");
@@ -435,12 +441,15 @@ app.post("/handle-seen", async (req: Request, res: Response) => {
       "SELECT seen FROM users WHERE id=(?)",
       (<any>decoded).userId,
     );
-    const seen: Array<String> = JSON.parse(query[0].seen);
-    const index = seen.indexOf(req.body);
+    const seen: Array<Entry> = JSON.parse(query[0].seen);
+    const body: Entry = JSON.parse(req.body);
+
+    const index = seen.findIndex((a) => a.redirect === body.redirect);
     if (index !== -1) {
-      seen.splice(index, 1);
+      seen[index].playtime = body.playtime;
+      seen[index].duration = body.duration;
     } else {
-      seen.push(req.body.toString());
+      seen.push(body);
     }
     await conn.query("UPDATE users SET seen = ? WHERE id = ?", [
       JSON.stringify(seen),

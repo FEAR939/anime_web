@@ -350,12 +350,14 @@ app.post("/handle-seen", (req, res) => __awaiter(void 0, void 0, void 0, functio
         const decoded = jwt.verify(token, "your-secret-key");
         const query = yield conn.query("SELECT seen FROM users WHERE id=(?)", decoded.userId);
         const seen = JSON.parse(query[0].seen);
-        const index = seen.indexOf(req.body);
+        const body = JSON.parse(req.body);
+        const index = seen.findIndex((a) => a.redirect === body.redirect);
         if (index !== -1) {
-            seen.splice(index, 1);
+            seen[index].playtime = body.playtime;
+            seen[index].duration = body.duration;
         }
         else {
-            seen.push(req.body.toString());
+            seen.push(body);
         }
         yield conn.query("UPDATE users SET seen = ? WHERE id = ?", [
             JSON.stringify(seen),
