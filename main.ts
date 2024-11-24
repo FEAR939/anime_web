@@ -326,6 +326,14 @@ app.get("/public/icons8-plus-math.png", (req: Request, res: Response) => {
   stream.pipe(res);
 });
 
+app.get("/public/icons8-home.png", (req: Request, res: Response) => {
+  const stream = fs.createReadStream(
+    path.join(__dirname, "/public/icons8-home.png"),
+  );
+  res.status(200).setHeader("Content-Type", "image/png");
+  stream.pipe(res);
+});
+
 // Routes for cors-fetch
 app.post("/cors-fetch", (req: Request, res: Response) => {
   const request = req.body.split(" ");
