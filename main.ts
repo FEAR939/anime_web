@@ -336,21 +336,26 @@ app.get("/public/icons8-home.png", (req: Request, res: Response) => {
 
 // Routes for cors-fetch
 app.post("/cors-fetch", (req: Request, res: Response) => {
-  const request = req.body.split(" ");
-  if (request[0] == "GET") {
-    fetch(request[1])
-      .then((response) => response.text())
-      .then((text) => res.status(200).send(text));
-  } else if (request[0] == "POST") {
-    fetch(request[2], {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: request[1],
-    })
-      .then((response) => response.text())
-      .then((text) => res.status(200).send(text));
-  } else {
-    res.status(404);
+  try {
+    const request = req.body.split(" ");
+    if (request[0] == "GET") {
+      fetch(request[1])
+        .then((response) => response.text())
+        .then((text) => res.status(200).send(text));
+    } else if (request[0] == "POST") {
+      fetch(request[2], {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: request[1],
+      })
+        .then((response) => response.text())
+        .then((text) => res.status(200).send(text));
+    } else {
+      res.status(404);
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(500);
   }
 });
 
