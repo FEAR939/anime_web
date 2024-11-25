@@ -76,6 +76,18 @@ function default_1(app, pool) {
             .setHeader("Content-Type", "text/javascript")
             .send(fs_1.default.readFileSync(path_1.default.join(__dirname, "/public/home/script.js"), "utf8"));
     });
+    app.get("/public/modules/get_dom.js", (req, res) => {
+        res
+            .status(200)
+            .setHeader("Content-Type", "text/javascript")
+            .send(fs_1.default.readFileSync(path_1.default.join(__dirname, "/public/modules/get_dom.js"), "utf8"));
+    });
+    app.get("/public/modules/interaction_menu.js", (req, res) => {
+        res
+            .status(200)
+            .setHeader("Content-Type", "text/javascript")
+            .send(fs_1.default.readFileSync(path_1.default.join(__dirname, "/public/modules/interaction_menu.js"), "utf8"));
+    });
     // Routes for search page
     app.get("/search", (req, res) => {
         res

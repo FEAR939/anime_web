@@ -3,7 +3,7 @@ import fs from "fs";
 import mariadb from "mariadb";
 import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
-import express, { Express, Request, Response} from "express";
+import { Express, Request, Response} from "express";
 
 export default function(app: Express, pool: mariadb.Pool) {
       // Routes for home page
@@ -40,6 +40,24 @@ export default function(app: Express, pool: mariadb.Pool) {
           .setHeader("Content-Type", "text/javascript")
           .send(
             fs.readFileSync(path.join(__dirname, "/public/home/script.js"), "utf8"),
+          );
+      });
+
+      app.get("/public/modules/get_dom.js", (req: Request, res: Response) => {
+        res
+          .status(200)
+          .setHeader("Content-Type", "text/javascript")
+          .send(
+            fs.readFileSync(path.join(__dirname, "/public/modules/get_dom.js"), "utf8"),
+          );
+      });
+
+      app.get("/public/modules/interaction_menu.js", (req: Request, res: Response) => {
+        res
+          .status(200)
+          .setHeader("Content-Type", "text/javascript")
+          .send(
+            fs.readFileSync(path.join(__dirname, "/public/modules/interaction_menu.js"), "utf8"),
           );
       });
       
