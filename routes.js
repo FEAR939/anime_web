@@ -396,4 +396,17 @@ function default_1(app, pool) {
         }
         conn.release();
     }));
+    // Routes for video.js
+    app.get("/node_modules/video.js/dist/video.min.js", (req, res) => {
+        res
+            .status(200)
+            .setHeader("Content-Type", "text/javascript")
+            .send(fs_1.default.readFileSync(path_1.default.join(__dirname, "/node_modules/video.js/dist/video.min.js"), "utf8"));
+    });
+    app.get("/node_modules/video.js/dist/video-js.css", (req, res) => {
+        res
+            .status(200)
+            .setHeader("Content-Type", "text/css")
+            .send(fs_1.default.readFileSync(path_1.default.join(__dirname, "/node_modules/video.js/dist/video-js.css"), "utf8"));
+    });
 }
