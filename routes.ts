@@ -209,6 +209,31 @@ export default function(app: Express, pool: mariadb.Pool) {
         ),
       );
   });
+
+  // Routes for Profile page
+  app.get("/profile", (req: Request, res: Response) => {
+    res
+      .status(200)
+      .setHeader("Content-Type", "text/html")
+      .send(
+        fs.readFileSync(
+          path.join(__dirname, "/public/profile/index.html"),
+          "utf8",
+        ),
+      );
+  });
+  
+  app.get("/public/profile/script.js", (req: Request, res: Response) => {
+    res
+      .status(200)
+      .setHeader("Content-Type", "text/javascript")
+      .send(
+        fs.readFileSync(
+          path.join(__dirname, "/public/profile/script.js"),
+          "utf8",
+        ),
+      );
+  });
   
   // Routes for Dashboard
   app.get("/dashboard", (req: Request, res: Response) => {

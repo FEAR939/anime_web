@@ -186,6 +186,19 @@ function default_1(app, pool) {
             .setHeader("Content-Type", "text/javascript")
             .send(fs_1.default.readFileSync(path_1.default.join(__dirname, "/public/watchlist/script.js"), "utf8"));
     });
+    // Routes for Profile page
+    app.get("/profile", (req, res) => {
+        res
+            .status(200)
+            .setHeader("Content-Type", "text/html")
+            .send(fs_1.default.readFileSync(path_1.default.join(__dirname, "/public/profile/index.html"), "utf8"));
+    });
+    app.get("/public/profile/script.js", (req, res) => {
+        res
+            .status(200)
+            .setHeader("Content-Type", "text/javascript")
+            .send(fs_1.default.readFileSync(path_1.default.join(__dirname, "/public/profile/script.js"), "utf8"));
+    });
     // Routes for Dashboard
     app.get("/dashboard", (req, res) => {
         res
