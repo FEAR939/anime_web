@@ -25,12 +25,12 @@ export default function(app: Express, pool: mariadb.Pool) {
       );
   });
   
-  app.get("/public/home/styles.css", (req: Request, res: Response) => {
+  app.get("/public/styles.css", (req: Request, res: Response) => {
     res
       .status(200)
       .setHeader("Content-Type", "text/css")
       .send(
-        fs.readFileSync(path.join(__dirname, "/public/home/styles.css"), "utf8"),
+        fs.readFileSync(path.join(__dirname, "/public/styles.css"), "utf8"),
       );
   });
   
@@ -60,7 +60,32 @@ export default function(app: Express, pool: mariadb.Pool) {
         fs.readFileSync(path.join(__dirname, "/public/modules/interaction_menu.js"), "utf8"),
       );
   });
-  
+
+  // Routes for calendar page
+  app.get("/calendar", (req: Request, res: Response) => {
+    res
+      .status(200)
+      .setHeader("Content-Type", "text/html")
+      .send(
+        fs.readFileSync(
+          path.join(__dirname, "/public/calendar/index.html"),
+          "utf8",
+        ),
+      );
+  });
+
+  app.get("/public/calendar/script.js", (req: Request, res: Response) => {
+    res
+      .status(200)
+      .setHeader("Content-Type", "text/javascript")
+      .send(
+        fs.readFileSync(
+          path.join(__dirname, "/public/calendar/script.js"),
+          "utf8",
+        ),
+      );
+  });
+
   // Routes for search page
   app.get("/search", (req: Request, res: Response) => {
     res
@@ -279,6 +304,14 @@ export default function(app: Express, pool: mariadb.Pool) {
   app.get("/public/icons8-home.png", (req: Request, res: Response) => {
     const stream = fs.createReadStream(
       path.join(__dirname, "/public/icons8-home.png"),
+    );
+    res.status(200).setHeader("Content-Type", "image/png");
+    stream.pipe(res);
+  });
+
+  app.get("/public/icon_calendar.png", (req: Request, res: Response) => {
+    const stream = fs.createReadStream(
+      path.join(__dirname, "/public/icon_calendar.png"),
     );
     res.status(200).setHeader("Content-Type", "image/png");
     stream.pipe(res);

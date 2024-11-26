@@ -208,6 +208,8 @@ body {
     position: relative;
     display: flex;
     overflow-x: scroll;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 16px;
     gap: 8px;
     margin-top: 16px;
     margin-bottom: 16px;
@@ -230,6 +232,7 @@ body {
     min-height: 0;
     overflow: hidden;
     cursor: pointer;
+    scroll-snap-align: start;
 }
 
 .anime_cards_slider .home_card {
@@ -260,6 +263,7 @@ body {
 }
 
 .home_card_title {
+    height: 21px;
     width: 100%;
     font-size: 12px;
     font-weight: 600;
@@ -627,6 +631,18 @@ body {
     z-index: 0;
 }
 
+.anime_episode_image {
+    display: block;
+    width: 30%;
+    border-radius: 8px;
+}
+
+.anime_episode_inner {
+    align-self: flex-start;
+    width: calc(70% - 8px);
+    height: fit-content;
+}
+
 .anime_episode_index {
     width: 100%;
     font-weight: 600;
@@ -634,7 +650,7 @@ body {
 
 .anime_episode_title {
     color: rgb(100, 100, 100);
-    width: calc(100% - 130px);
+    width: 100%;
 }
 
 .anime_episode_playtime {
@@ -823,3 +839,17 @@ body {
     margin: 16px;
     border-radius: 16px;
 }
+
+.skeleton {
+    height: 100%;
+    width: 100%;
+    background: rgb(30, 30, 30);
+    animation: pulse 2s infinite;
+    border-radius: 8px;
+}
+
+@keyframes pulse {
+    50% {
+      opacity: .5;
+    }
+  }

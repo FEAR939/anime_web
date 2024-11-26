@@ -36,8 +36,6 @@
     render_watch();
   }
 
-  menu(interaction);
-
   async function render_watch() {
     const query = window.location.search;
     const params = new window.URLSearchParams(query);
@@ -58,7 +56,7 @@
       (genre) => genre.textContent,
     );
     const rating = doc.querySelector(".starRatingResult strong").textContent;
-    // const imdb_link = doc.querySelector(".imdb-link").getAttribute("href");
+    const imdb_link = doc.querySelector(".imdb-link").getAttribute("href");
 
     const anime_image = document.createElement("img");
     anime_image.className = "anime_image";
@@ -156,8 +154,11 @@
         // get episodes
 
         const episodes = doc.querySelectorAll("tbody tr .seasonEpisodeTitle a");
+        const imdb_doc = await get_dom(imdb_link + "/episodes/?season=" + item.textContent);
 
-        episodes.forEach(async (item) => {
+        const imdb_season_images = imdb_doc.querySelectorAll("article > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > img:nth-child(1)");
+
+        episodes.forEach(async (item, i) => {
           // get episode redirect
 
           let redirect = item.getAttribute("href");
@@ -172,14 +173,25 @@
           const anime_episode_area = document.createElement("div");
           anime_episode_area.className = "anime_episode_area";
           anime_episode.appendChild(anime_episode_area);
+          if (imdb_season_images.length > 0) {
+            const anime_episode_image = document.createElement("img");
+            anime_episode_image.className = "anime_episode_image";
+            anime_episode_image.loading = "lazy";
+            anime_episode_image.src = imdb_season_images[i].getAttribute("src");
+            anime_episode.appendChild(anime_episode_image);
+          }
+        
+          const anime_episode_inner = document.createElement("div");
+          anime_episode_inner.className = "anime_episode_inner";
+          anime_episode.appendChild(anime_episode_inner);
 
           const anime_episode_index = document.createElement("div");
           anime_episode_index.className = "anime_episode_index";
-          anime_episode.appendChild(anime_episode_index);
+          anime_episode_inner.appendChild(anime_episode_index);
 
           const anime_episode_title = document.createElement("div");
           anime_episode_title.className = "anime_episode_title";
-          anime_episode.appendChild(anime_episode_title);
+          anime_episode_inner.appendChild(anime_episode_title);
 
           var anime_episode_playtime = null;
           var anime_episode_playtime_bar = null;

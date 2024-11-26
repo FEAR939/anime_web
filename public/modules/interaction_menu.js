@@ -1,5 +1,28 @@
-function menu(interaction) {
-    const cookie = localStorage.getItem("cookie");
+function menu() {
+  const menu_bar = document.createElement("div");
+  menu_bar.className = "menu_bar";
+  document.body.appendChild(menu_bar);
+
+  const interaction = document.createElement("div");
+  interaction.className = "interaction";
+  menu_bar.appendChild(interaction);
+
+  const home_item = document.createElement("a");
+  home_item.href = "/";
+  home_item.innerHTML = "<img src='/public/icons8-home.png' alt='' class='src' />";
+  interaction.appendChild(home_item);
+
+  const calendar_item = document.createElement("a");
+  calendar_item.href = "/calendar";
+  calendar_item.innerHTML = "<img src='/public/icon_calendar.png' alt='' class='src' />";
+  interaction.appendChild(calendar_item);
+
+  const search_item = document.createElement("a");
+  search_item.href = "/";
+  search_item.innerHTML = "<img src='/public/icons8-search.png' alt='' class='src' />";
+  interaction.appendChild(search_item);
+  
+  const cookie = localStorage.getItem("cookie");
   if (!cookie) {
     const login = document.createElement("a");
     login.className = "login";
@@ -14,6 +37,12 @@ function menu(interaction) {
     })
       .then((response) => response.json())
       .then((text) => {
+        const watchlist_btn = document.createElement("a");
+        watchlist_btn.className = "watchlist_btn";
+        watchlist_btn.innerHTML = "<img class='src' src='/public/icons8-bookmark-filled.png'>";
+        watchlist_btn.href = "/watchlist";
+        interaction.appendChild(watchlist_btn);
+
         const account = document.createElement("div");
         account.className = "account";
         interaction.appendChild(account);
@@ -40,12 +69,6 @@ function menu(interaction) {
           }
         };
 
-        const watchlist_btn = document.createElement("a");
-        watchlist_btn.className = "watchlist_btn";
-        watchlist_btn.textContent = "Your Watchlist";
-        watchlist_btn.href = "/watchlist";
-        account_panel.appendChild(watchlist_btn);
-
         const change_avatar = document.createElement("a");
         change_avatar.className = "change_avatar";
         change_avatar.textContent = "Change Avatar";
@@ -70,3 +93,5 @@ function menu(interaction) {
       });
   }
 }
+
+window.onload = () => menu();

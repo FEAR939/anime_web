@@ -64,11 +64,11 @@ function default_1(app, pool) {
             .setHeader("Content-Type", "application/json")
             .send(fs_1.default.readFileSync(path_1.default.join(__dirname, "/public/manifest.json"), "utf8"));
     });
-    app.get("/public/home/styles.css", (req, res) => {
+    app.get("/public/styles.css", (req, res) => {
         res
             .status(200)
             .setHeader("Content-Type", "text/css")
-            .send(fs_1.default.readFileSync(path_1.default.join(__dirname, "/public/home/styles.css"), "utf8"));
+            .send(fs_1.default.readFileSync(path_1.default.join(__dirname, "/public/styles.css"), "utf8"));
     });
     app.get("/public/home/script.js", (req, res) => {
         res
@@ -87,6 +87,19 @@ function default_1(app, pool) {
             .status(200)
             .setHeader("Content-Type", "text/javascript")
             .send(fs_1.default.readFileSync(path_1.default.join(__dirname, "/public/modules/interaction_menu.js"), "utf8"));
+    });
+    // Routes for calendar page
+    app.get("/calendar", (req, res) => {
+        res
+            .status(200)
+            .setHeader("Content-Type", "text/html")
+            .send(fs_1.default.readFileSync(path_1.default.join(__dirname, "/public/calendar/index.html"), "utf8"));
+    });
+    app.get("/public/calendar/script.js", (req, res) => {
+        res
+            .status(200)
+            .setHeader("Content-Type", "text/javascript")
+            .send(fs_1.default.readFileSync(path_1.default.join(__dirname, "/public/calendar/script.js"), "utf8"));
     });
     // Routes for search page
     app.get("/search", (req, res) => {
@@ -229,6 +242,11 @@ function default_1(app, pool) {
     });
     app.get("/public/icons8-home.png", (req, res) => {
         const stream = fs_1.default.createReadStream(path_1.default.join(__dirname, "/public/icons8-home.png"));
+        res.status(200).setHeader("Content-Type", "image/png");
+        stream.pipe(res);
+    });
+    app.get("/public/icon_calendar.png", (req, res) => {
+        const stream = fs_1.default.createReadStream(path_1.default.join(__dirname, "/public/icon_calendar.png"));
         res.status(200).setHeader("Content-Type", "image/png");
         stream.pipe(res);
     });

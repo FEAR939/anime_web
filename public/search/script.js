@@ -1,7 +1,6 @@
 const search_input = document.body.querySelector(".search_input");
 const search_results = document.body.querySelector(".search_results");
 const interaction = document.body.querySelector(".interaction");
-menu(interaction);
 
 window.onload = () => render_search();
 
