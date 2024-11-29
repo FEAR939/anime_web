@@ -1,12 +1,12 @@
 const search_input = document.body.querySelector(".search_input");
 const search_results = document.body.querySelector(".search_results");
-const interaction = document.body.querySelector(".interaction");
 
-window.onload = () => render_search();
+render_search();
 
 function render_search() {
     search_input.addEventListener("keyup", (event) => {
         if (event.key !== "Enter" || search_input.value.trim().length == 0) return;
+        search_results.innerHTML = "<div class='spinner'></div>"
     
         fetch("/cors-fetch", {
             method: "POST",

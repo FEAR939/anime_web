@@ -53,11 +53,15 @@
       });
     });
 
+    anime_slider.querySelector(".spinner").remove();
+
     slider_loop(slide_elements);
 
     const anime_elements = doc
       .querySelector(".carousel")
       .querySelectorAll(".coverListItem a");
+
+    anime_cards.querySelector(".spinner").remove();
 
     anime_elements.forEach(async (anime_element) => {
       // get anime link

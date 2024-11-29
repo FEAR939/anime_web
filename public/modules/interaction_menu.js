@@ -1,3 +1,5 @@
+menu();
+
 function menu() {
   const menu_bar = document.createElement("div");
   menu_bar.className = "menu_bar";
@@ -18,7 +20,7 @@ function menu() {
   interaction.appendChild(calendar_item);
 
   const search_item = document.createElement("a");
-  search_item.href = "/";
+  search_item.href = "/search";
   search_item.innerHTML = "<img src='/public/icons8-search.png' alt='' class='src' />";
   interaction.appendChild(search_item);
   
@@ -53,5 +55,3 @@ function menu() {
     });
   }
 }
-
-window.onload = () => menu();

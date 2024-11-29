@@ -1,6 +1,5 @@
 const cookie = localStorage.getItem("cookie");
 const anime_cards = document.querySelector(".anime_cards");
-const interaction = document.body.querySelector(".interaction");
 
 var marked;
 
@@ -17,6 +16,7 @@ if (cookie) {
 }
 
 function render_watchlist() {
+    document.body.querySelector(".spinner").remove();
     if (marked.length == 0) return anime_cards.textContent = "Your Watchlist is empty";
 
     marked.map(anime => {
