@@ -87,7 +87,7 @@
       home_card.appendChild(home_card_title);
 
       home_card.onclick = () => {
-        window.location.replace("/watch?v=https://aniworld.to" + redirect);
+        window.location.replace("/watch?v=" + redirect);
       };
 
       anime_cards.appendChild(home_card);

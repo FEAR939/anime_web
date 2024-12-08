@@ -147,7 +147,7 @@ function default_1(app, pool) {
             return res.status(401).json({ error: "Acces denied" });
         try {
             const decoded = jwt.verify(token, "your-secret-key");
-            yield conn.query("UPDATE users SET avatar = ? WHERE id = ?", [
+            yield conn.query("UPDATE users SET avatar_url = ? WHERE user_id = ?", [
                 req.body,
                 decoded.userId,
             ]);
@@ -165,7 +165,7 @@ function default_1(app, pool) {
             return res.status(401).json({ error: "Acces denied" });
         try {
             const decoded = jwt.verify(token, "your-secret-key");
-            const image = yield conn.query("Select avatar FROM users WHERE id = ?", decoded.userId);
+            const image = yield conn.query("Select avatar_url FROM users WHERE user_id = ?", decoded.userId);
             res.status(201).send(image[0]);
         }
         catch (error) {
@@ -308,7 +308,7 @@ function default_1(app, pool) {
         try {
             const { username, password } = req.body;
             const hashedpassword = yield bcrypt.hash(password, 10);
-            conn.query("INSERT INTO users (username, password) VALUES (?, ?)", [
+            conn.query("INSERT INTO users (username, password_hash) VALUES (?, ?)", [
                 username,
                 hashedpassword,
             ]);
@@ -327,11 +327,11 @@ function default_1(app, pool) {
             if (!user) {
                 return res.status(401).json({ error: "Authentication failed" });
             }
-            const passwordMatch = yield bcrypt.compare(password, user[0].password);
+            const passwordMatch = yield bcrypt.compare(password, user[0].password_hash);
             if (!passwordMatch) {
                 return res.status(401).json({ error: "Authentication failed" });
             }
-            const token = jwt.sign({ userId: user[0].id }, "your-secret-key");
+            const token = jwt.sign({ userId: user[0].user_id }, "your-secret-key");
             res.status(200).json({ token });
         }
         catch (error) {
@@ -340,15 +340,22 @@ function default_1(app, pool) {
         conn.release();
     }));
     // Routes for seen/unseen
-    app.get("/get-seen", (req, res) => __awaiter(this, void 0, void 0, function* () {
+    app.post("/get-seen", (req, res) => __awaiter(this, void 0, void 0, function* () {
         const conn = yield pool.getConnection();
         const token = req.header("Authorization");
         if (!token)
             return res.status(401).json({ error: "Access denied" });
         try {
             const decoded = jwt.verify(token, "your-secret-key");
-            const seen = yield conn.query("SELECT seen from users WHERE id=(?)", decoded.userId);
-            res.status(200).send(seen[0]);
+            const urls = JSON.parse(req.body);
+            const placeholders = urls.map(() => '?').join(',');
+            const seen = yield conn.query(`SELECT episode_id, watch_playtime, watch_duration from watch_history 
+         WHERE user_id = ? 
+         AND episode_id IN (${placeholders})`, [
+                decoded.userId,
+                ...urls,
+            ]);
+            res.status(200).send(seen);
         }
         catch (error) {
             res.status(401).json({ error: "Invalid token" });
@@ -362,22 +369,19 @@ function default_1(app, pool) {
             return res.status(401).json({ error: "Acces denied" });
         try {
             const decoded = jwt.verify(token, "your-secret-key");
-            const query = yield conn.query("SELECT seen FROM users WHERE id=(?)", decoded.userId);
-            const seen = JSON.parse(query[0].seen);
-            const body = JSON.parse(req.body);
-            const index = seen.findIndex((a) => a.redirect === body.redirect);
-            if (index !== -1) {
-                seen[index].playtime = body.playtime;
-                seen[index].duration = body.duration;
-            }
-            else {
-                seen.push(body);
-            }
-            yield conn.query("UPDATE users SET seen = ? WHERE id = ?", [
-                JSON.stringify(seen),
+            const data = JSON.parse(req.body);
+            yield conn.query(`
+        INSERT INTO watch_history (user_id, episode_id, watch_playtime, watch_duration) 
+        VALUES (?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE 
+            watch_playtime = VALUES(watch_playtime),
+            watch_duration = VALUES(watch_duration);`, [
                 decoded.userId,
+                data.id,
+                data.playtime,
+                data.duration,
             ]);
-            res.status(201).json({ action: index == -1 ? "added" : "removed" });
+            res.status(200).send();
         }
         catch (error) {
             res.status(401).json({ error: "Invalid token" });
@@ -385,18 +389,36 @@ function default_1(app, pool) {
         conn.release();
     }));
     // routes for marked
-    app.get("/get-marked", (req, res) => __awaiter(this, void 0, void 0, function* () {
+    app.get("/get-list", (req, res) => __awaiter(this, void 0, void 0, function* () {
         const conn = yield pool.getConnection();
         const token = req.header("Authorization");
         if (!token)
             return res.status(401).json({ error: "Access denied" });
         try {
             const decoded = jwt.verify(token, "your-secret-key");
-            const marked = yield conn.query("SELECT marked from users WHERE id=(?)", decoded.userId);
-            res.status(200).send(marked[0]);
+            const marked = yield conn.query("SELECT series_id from user_watchlist WHERE user_id = ? AND is_in_list = 1", decoded.userId);
+            res.status(200).send(marked);
         }
         catch (error) {
-            res.status(401).json({ error: "Invalid token" });
+            res.status(401).json({ error: "Error" });
+        }
+        conn.release();
+    }));
+    app.post("/get-marked", (req, res) => __awaiter(this, void 0, void 0, function* () {
+        const conn = yield pool.getConnection();
+        const token = req.header("Authorization");
+        if (!token)
+            return res.status(401).json({ error: "Access denied" });
+        try {
+            const decoded = jwt.verify(token, "your-secret-key");
+            const marked = yield conn.query("SELECT is_in_list from user_watchlist WHERE user_id = ? AND series_id = ?", [
+                decoded.userId,
+                req.body.toString(),
+            ]);
+            res.status(200).send(marked);
+        }
+        catch (error) {
+            res.status(401).json({ error: "Error" });
         }
         conn.release();
     }));
@@ -407,20 +429,15 @@ function default_1(app, pool) {
             return res.status(401).json({ error: "Acces denied" });
         try {
             const decoded = jwt.verify(token, "your-secret-key");
-            const query = yield conn.query("SELECT marked FROM users WHERE id=(?)", decoded.userId);
-            const marked = JSON.parse(query[0].marked);
-            const index = marked.indexOf(req.body);
-            if (index !== -1) {
-                marked.splice(index, 1);
-            }
-            else {
-                marked.push(req.body.toString());
-            }
-            yield conn.query("UPDATE users SET marked = ? WHERE id = ?", [
-                JSON.stringify(marked),
+            yield conn.query(`
+        INSERT INTO user_watchlist (user_id, series_id, is_in_list) 
+        VALUES (?, ?, true)
+        ON DUPLICATE KEY UPDATE 
+            is_in_list = NOT is_in_list;`, [
                 decoded.userId,
+                req.body.toString(),
             ]);
-            res.status(201).json({ action: index == -1 ? "added" : "removed" });
+            res.status(200).send();
         }
         catch (error) {
             res.status(401).json({ error: "Invalid token" });

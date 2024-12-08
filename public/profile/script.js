@@ -12,7 +12,7 @@ fetch("/get-avatar", {
 
         const avatar = document.createElement("img");
         avatar.className = "user_avatar";
-        avatar.src = text.avatar;
+        avatar.src = text.avatar_url;
         account_info.appendChild(avatar);
 
         const change_avatar = document.createElement("a");

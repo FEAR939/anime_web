@@ -15,7 +15,7 @@ const pool = mariadb_1.default.createPool({
     host: "raspberrypi",
     user: "anime_web",
     password: "anime_web",
-    database: "anime_web",
+    database: "zeph",
 });
 (0, routes_js_1.default)(app, pool);
 var hourUtil = [];

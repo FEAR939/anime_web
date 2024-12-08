@@ -1,25 +1,32 @@
 const cookie = localStorage.getItem("cookie");
 const anime_cards = document.querySelector(".anime_cards");
 
-var marked;
+var marked = [];
 
 if (cookie) {
-    fetch("/get-marked", {
+    fetch("/get-list", {
         method: "GET",
         headers: {
             "Authorization": cookie
         }
     }).then(response => response.json()).then(text => {
-        marked = JSON.parse(text.marked);
-        render_watchlist();
+        try {
+            marked = text;
+            console.log(marked);
+        } catch (e) {
+            console.log(e);
+        } finally {
+            render_watchlist();
+        }
     });
 }
 
 function render_watchlist() {
     document.body.querySelector(".spinner").remove();
-    if (marked.length == 0) return anime_cards.textContent = "Your Watchlist is empty";
+    if (!marked.length) return anime_cards.textContent = "Your Watchlist is empty";
 
     marked.map(anime => {
+        console.log(anime);
         const home_card = document.createElement("div");
         home_card.className = "home_card";
 
@@ -36,8 +43,8 @@ function render_watchlist() {
 
         anime_cards.appendChild(home_card);
 
-        get_dom(anime).then(DOM => {
-            const redirect = anime;
+        get_dom("https://aniworld.to" + anime.series_id).then(DOM => {
+            const redirect = anime.series_id;
             const image = DOM.querySelector(".seriesCoverBox img").getAttribute("data-src");
             const title = DOM.querySelector(".series-title h1").textContent;
 

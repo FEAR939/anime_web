@@ -1,47 +1,42 @@
 (() => {
+  const query = window.location.search;
+  const params = new window.URLSearchParams(query);
+  const url = params.get("v");
+
   const container = document.body.querySelector(".container");
-  const interaction = document.body.querySelector(".interaction");
   const anime_info = document.body.querySelector(".anime_info");
   const anime_seasonslist = document.body.querySelector(".anime_seasons_list");
   const anime_episodeslist = document.body.querySelector(
     ".anime_episodes_list",
   );
   let player;
-  let seen;
-  let marked;
+  let marked = [];
   const cookie = localStorage.getItem("cookie");
   if (cookie) {
-    fetch("/get-seen", {
-      method: "GET",
+    fetch("/get-marked", {
+      method: "POST",
       headers: {
         Authorization: cookie,
       },
+      body: url
     })
-      .then((response) => response.json())
-      .then((text) => {
-        seen = JSON.parse(text.seen);
-        fetch("/get-marked", {
-          method: "GET",
-          headers: {
-            Authorization: cookie,
-          },
-        })
-          .then((response) => response.json())
-          .then((text) => {
-            marked = JSON.parse(text.marked);
-            render_watch();
-          });
-      });
+    .then((response) => response.json())
+    .then((text) => {
+      try {
+        marked = text;
+        console.log(marked);
+      } catch (e) {
+        console.log(e);
+      } finally {
+        render_watch();
+      }
+    });
   } else {
     render_watch();
   }
 
   async function render_watch() {
-    const query = window.location.search;
-    const params = new window.URLSearchParams(query);
-    const url = params.get("v");
-
-    let doc = await get_dom(url);
+    let doc = await get_dom("https://aniworld.to" + url);
 
     // get anime info
 
@@ -96,7 +91,9 @@
     anime_info.appendChild(anime_marked);
 
     if (cookie) {
-      if (marked.indexOf(url) !== -1) {
+      var state = false;
+      if (marked[0] && marked[0].is_in_list) {
+        state = true;
         anime_marked.textContent = "Remove from Watchlist";
       }
 
@@ -108,23 +105,18 @@
           },
           body: url,
         })
-          .then((response) => {
-            if (response.status == 401)
-              return console.log("Error marking episode as seen/unseen");
-            return response.json();
-          })
-          .then((result) => {
-            if (result.action == "added") {
-              anime_marked.textContent = "Remove from Watchlist";
-              return;
-            }
-            if (result.action == "removed") {
-              anime_marked.textContent = "Add to Watchlist";
-              return;
-            }
-          });
-      };
-    }
+        .then((response) => {
+          if (response.status !== 200) return
+          if (state) {
+            state = false;
+            anime_marked.textContent = "Add to Watchlist";
+          } else {
+            state = true
+            anime_marked.textContent = "Remove from Watchlist";
+          }
+        });
+      }
+    };
 
     // get anime seasons
 
@@ -160,18 +152,39 @@
 
       // get episodes
 
-      const episodes = doc.querySelectorAll("tbody tr .seasonEpisodeTitle a");
+      const episodes = doc.querySelectorAll("tbody tr");
+      
       const imdb_doc = await get_dom(imdb_link + "/episodes/?season=" + item.textContent);
 
       const imdb_season_images = imdb_doc.querySelectorAll("article > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > img:nth-child(1)");
+
+      let seen = [];
+      if (cookie) {
+        await fetch("/get-seen", {
+          method: "POST",
+          headers: {
+            Authorization: cookie,
+          },
+          body: JSON.stringify([...episodes].map(episode => episode.getAttribute("data-episode-id")))
+        })
+        .then((response) => response.json())
+        .then((text) => {
+          try {
+            seen = text;
+          } catch (e) {
+            console.log(e);
+          }
+        });
+      }
 
       anime_episodeslist.innerHTML = "";
       
       episodes.forEach(async (item, i) => {
         // get episode redirect
+        const anchor = item.querySelector(".seasonEpisodeTitle a");
 
-        let redirect = item.getAttribute("href");
-        let title = item.textContent;
+        let redirect = anchor.getAttribute("href");
+        let title = anchor.textContent;
 
         // create dom element
 
@@ -210,7 +223,7 @@
 
         if (cookie) {
           const index = seen.findIndex(
-            (a) => a.redirect === redirect.toString(),
+            (a) => a.episode_id == episodes[i].getAttribute("data-episode-id"),
           );
           if (index !== -1) {
             anime_episode_playtime = document.createElement("div");
@@ -227,7 +240,7 @@
             anime_episode_playtime_bar_progress.className =
               "anime_episode_playtime_bar_progress";
             anime_episode_playtime_bar_progress.style.width =
-              (seen[index].playtime / seen[index].duration) * 100 + "%";
+              (seen[index].watch_playtime / seen[index].watch_duration) * 100 + "%";
             anime_episode_playtime_bar.appendChild(
               anime_episode_playtime_bar_progress,
             );
@@ -236,7 +249,7 @@
             anime_episode_playtime_time.className =
               "anime_episode_playtime_time";
             anime_episode_playtime_time.textContent =
-              seen[index].playtime + " / " + seen[index].duration + " Min.";
+              seen[index].watch_playtime + " / " + seen[index].watch_duration + " Min.";
             anime_episode_playtime.appendChild(anime_episode_playtime_time);
           }
         }
@@ -298,13 +311,13 @@
                 body: JSON.stringify({
                   playtime: playtimeM,
                   duration: playdurationM,
-                  redirect: redirect,
+                  id: episodes[i].getAttribute("data-episode-id"),
                 }),
               }).then((response) => {
                 if (response.status == 401)
                   return console.log("Error marking episode as seen/unseen");
                 if (
-                  response.status == 201 &&
+                  response.status == 200 &&
                   anime_episode_playtime !== null
                 ) {
                   anime_episode_playtime_bar_progress.style.width =
@@ -343,17 +356,6 @@
                   );
                 }
               });
-              const index = seen.findIndex((a) => a.redirect === redirect);
-              if (index !== -1) {
-                seen[index].playtime = playtimeM;
-                seen[index].duration = playdurationM;
-              } else {
-                seen.push({
-                  playtime: playtimeM,
-                  duration: playdurationM,
-                  redirect: redirect,
-                });
-              }
             };
 
             const video_player = document.createElement("video");

@@ -156,7 +156,7 @@ export default function(app: Express, pool: mariadb.Pool) {
     try {
       const decoded = jwt.verify(token, "your-secret-key");
   
-      await conn.query("UPDATE users SET avatar = ? WHERE id = ?", [
+      await conn.query("UPDATE users SET avatar_url = ? WHERE user_id = ?", [
         req.body,
         (<any>decoded).userId,
       ]);
@@ -175,7 +175,7 @@ export default function(app: Express, pool: mariadb.Pool) {
       const decoded = jwt.verify(token, "your-secret-key");
   
       const image = await conn.query(
-        "Select avatar FROM users WHERE id = ?",
+        "Select avatar_url FROM users WHERE user_id = ?",
         (<any>decoded).userId,
       );
       res.status(201).send(image[0]);
@@ -395,7 +395,7 @@ export default function(app: Express, pool: mariadb.Pool) {
       const { username, password } = req.body;
       const hashedpassword = await bcrypt.hash(password, 10);
   
-      conn.query("INSERT INTO users (username, password) VALUES (?, ?)", [
+      conn.query("INSERT INTO users (username, password_hash) VALUES (?, ?)", [
         username,
         hashedpassword,
       ]);
@@ -417,11 +417,11 @@ export default function(app: Express, pool: mariadb.Pool) {
       if (!user) {
         return res.status(401).json({ error: "Authentication failed" });
       }
-      const passwordMatch = await bcrypt.compare(password, user[0].password);
+      const passwordMatch = await bcrypt.compare(password, user[0].password_hash);
       if (!passwordMatch) {
         return res.status(401).json({ error: "Authentication failed" });
       }
-      const token = jwt.sign({ userId: user[0].id }, "your-secret-key");
+      const token = jwt.sign({ userId: user[0].user_id }, "your-secret-key");
       res.status(200).json({ token });
     } catch (error) {
       res.status(500).json({ error: "Login failed" });
@@ -429,17 +429,26 @@ export default function(app: Express, pool: mariadb.Pool) {
     conn.release();
   });
   // Routes for seen/unseen
-  app.get("/get-seen", async (req: Request, res: Response) => {
+  app.post("/get-seen", async (req: Request, res: Response) => {
     const conn = await pool.getConnection();
     const token = req.header("Authorization");
     if (!token) return res.status(401).json({ error: "Access denied" });
     try {
       const decoded = jwt.verify(token, "your-secret-key");
+
+      const urls = JSON.parse(req.body);
+      const placeholders = urls.map(() => '?').join(',');
+
       const seen = await conn.query(
-        "SELECT seen from users WHERE id=(?)",
-        (<any>decoded).userId,
-      );
-      res.status(200).send(seen[0]);
+        `SELECT episode_id, watch_playtime, watch_duration from watch_history 
+         WHERE user_id = ? 
+         AND episode_id IN (${placeholders})`,
+          [
+            (<any>decoded).userId,
+              ...urls,
+          ]
+      	);
+      res.status(200).send(seen);
     } catch (error) {
       res.status(401).json({ error: "Invalid token" });
     }
@@ -458,25 +467,21 @@ export default function(app: Express, pool: mariadb.Pool) {
     if (!token) return res.status(401).json({ error: "Acces denied" });
     try {
       const decoded = jwt.verify(token, "your-secret-key");
-      const query = await conn.query(
-        "SELECT seen FROM users WHERE id=(?)",
+      const data = JSON.parse(req.body);
+
+      await conn.query(`
+        INSERT INTO watch_history (user_id, episode_id, watch_playtime, watch_duration) 
+        VALUES (?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE 
+            watch_playtime = VALUES(watch_playtime),
+            watch_duration = VALUES(watch_duration);`, [
         (<any>decoded).userId,
-      );
-      const seen: Array<Entry> = JSON.parse(query[0].seen);
-      const body: Entry = JSON.parse(req.body);
-  
-      const index = seen.findIndex((a) => a.redirect === body.redirect);
-      if (index !== -1) {
-        seen[index].playtime = body.playtime;
-        seen[index].duration = body.duration;
-      } else {
-        seen.push(body);
-      }
-      await conn.query("UPDATE users SET seen = ? WHERE id = ?", [
-        JSON.stringify(seen),
-        (<any>decoded).userId,
+        data.id,
+        data.playtime,
+        data.duration,
       ]);
-      res.status(201).json({ action: index == -1 ? "added" : "removed" });
+      
+      res.status(200).send();
     } catch (error) {
       res.status(401).json({ error: "Invalid token" });
     }
@@ -484,19 +489,45 @@ export default function(app: Express, pool: mariadb.Pool) {
   });
   
   // routes for marked
-  app.get("/get-marked", async (req: Request, res: Response) => {
+  app.get("/get-list", async (req: Request, res: Response) => {
     const conn = await pool.getConnection();
     const token = req.header("Authorization");
+    
     if (!token) return res.status(401).json({ error: "Access denied" });
     try {
       const decoded = jwt.verify(token, "your-secret-key");
+
       const marked = await conn.query(
-        "SELECT marked from users WHERE id=(?)",
+        "SELECT series_id from user_watchlist WHERE user_id = ? AND is_in_list = 1",
         (<any>decoded).userId,
       );
-      res.status(200).send(marked[0]);
+      
+      res.status(200).send(marked);
     } catch (error) {
-      res.status(401).json({ error: "Invalid token" });
+      res.status(401).json({ error: "Error" });
+    }
+    conn.release();
+  });
+
+  app.post("/get-marked", async (req: Request, res: Response) => {
+    const conn = await pool.getConnection();
+    const token = req.header("Authorization");
+    
+    if (!token) return res.status(401).json({ error: "Access denied" });
+    try {
+      const decoded = jwt.verify(token, "your-secret-key");
+
+      const marked = await conn.query(
+        "SELECT is_in_list from user_watchlist WHERE user_id = ? AND series_id = ?",
+        [
+          (<any>decoded).userId,
+          req.body.toString(),
+        ]
+      );
+      
+      res.status(200).send(marked);
+    } catch (error) {
+      res.status(401).json({ error: "Error" });
     }
     conn.release();
   });
@@ -507,22 +538,17 @@ export default function(app: Express, pool: mariadb.Pool) {
     if (!token) return res.status(401).json({ error: "Acces denied" });
     try {
       const decoded = jwt.verify(token, "your-secret-key");
-      const query = await conn.query(
-        "SELECT marked FROM users WHERE id=(?)",
+
+      await conn.query(`
+        INSERT INTO user_watchlist (user_id, series_id, is_in_list) 
+        VALUES (?, ?, true)
+        ON DUPLICATE KEY UPDATE 
+            is_in_list = NOT is_in_list;`, [
         (<any>decoded).userId,
-      );
-      const marked: Array<String> = JSON.parse(query[0].marked);
-      const index = marked.indexOf(req.body);
-      if (index !== -1) {
-        marked.splice(index, 1);
-      } else {
-        marked.push(req.body.toString());
-      }
-      await conn.query("UPDATE users SET marked = ? WHERE id = ?", [
-        JSON.stringify(marked),
-        (<any>decoded).userId,
+        req.body.toString(),
       ]);
-      res.status(201).json({ action: index == -1 ? "added" : "removed" });
+
+      res.status(200).send();
     } catch (error) {
       res.status(401).json({ error: "Invalid token" });
     }

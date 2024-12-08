@@ -50,7 +50,7 @@ function menu() {
 
         const avatar = document.createElement("img");
         avatar.className = "user_avatar";
-        avatar.src = text.avatar;
+        avatar.src = text.avatar_url;
         account.appendChild(avatar);
     });
   }

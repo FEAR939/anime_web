@@ -14,7 +14,7 @@ const pool = mariadb.createPool({
   host: "raspberrypi",
   user: "anime_web",
   password: "anime_web",
-  database: "anime_web",
+  database: "zeph",
 });
 
 routes(app, pool);
