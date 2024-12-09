@@ -436,7 +436,7 @@ export default function(app: Express, pool: mariadb.Pool) {
     try {
       const decoded = jwt.verify(token, "your-secret-key");
 
-      const urls = JSON.parse(req.body);
+      const urls = req.body
       const placeholders = urls.map(() => '?').join(',');
 
       const seen = await conn.query(
@@ -467,7 +467,7 @@ export default function(app: Express, pool: mariadb.Pool) {
     if (!token) return res.status(401).json({ error: "Acces denied" });
     try {
       const decoded = jwt.verify(token, "your-secret-key");
-      const data = JSON.parse(req.body);
+      const data = req.body
 
       await conn.query(`
         INSERT INTO watch_history (user_id, episode_id, watch_playtime, watch_duration) 

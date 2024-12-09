@@ -322,6 +322,7 @@ function default_1(app, pool) {
     app.post("/auth-login", (req, res) => __awaiter(this, void 0, void 0, function* () {
         const conn = yield pool.getConnection();
         try {
+            console.log(req.body);
             const { username, password } = req.body;
             const user = yield conn.query("SELECT * FROM users WHERE username=(?)", username);
             if (!user) {
@@ -347,7 +348,9 @@ function default_1(app, pool) {
             return res.status(401).json({ error: "Access denied" });
         try {
             const decoded = jwt.verify(token, "your-secret-key");
-            const urls = JSON.parse(req.body);
+            console.log(req.body);
+            const urls = req.body;
+            console.log(urls);
             const placeholders = urls.map(() => '?').join(',');
             const seen = yield conn.query(`SELECT episode_id, watch_playtime, watch_duration from watch_history 
          WHERE user_id = ? 
@@ -369,7 +372,7 @@ function default_1(app, pool) {
             return res.status(401).json({ error: "Acces denied" });
         try {
             const decoded = jwt.verify(token, "your-secret-key");
-            const data = JSON.parse(req.body);
+            const data = req.body;
             yield conn.query(`
         INSERT INTO watch_history (user_id, episode_id, watch_playtime, watch_duration) 
         VALUES (?, ?, ?, ?)
