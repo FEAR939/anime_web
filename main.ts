@@ -22,7 +22,10 @@ routes(app, pool);
 // Handler for logging requests and CORS Origin
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Headers", "Authorization");
+  res.setHeader("Access-Control-Allow-Headers", [
+    "Authorization",
+    "Content-Type",
+  ]);
   next();
 });
 
