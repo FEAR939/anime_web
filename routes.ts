@@ -24,18 +24,18 @@ export default function (app: Express, pool: mariadb.Pool) {
     conn.release();
   });
 
-  app.get("/get-avatar", async (req: Request, res: Response) => {
+  app.get("/get-user", async (req: Request, res: Response) => {
     const conn = await pool.getConnection();
     const token = req.header("Authorization");
     if (!token) return res.status(401).json({ error: "Acces denied" });
     try {
       const decoded = jwt.verify(token, "your-secret-key");
 
-      const image = await conn.query(
-        "Select avatar_url FROM users WHERE user_id = ?",
+      const user = await conn.query(
+        "Select username, avatar_url FROM users WHERE user_id = ?",
         (<any>decoded).userId,
       );
-      res.status(201).send(image[0]);
+      res.status(201).send(user[0]);
     } catch (error) {
       res.status(401).json({ error: "Invalid token" });
     }
