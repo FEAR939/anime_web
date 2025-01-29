@@ -202,4 +202,51 @@ export default function (app: Express, pool: mariadb.Pool) {
     }
     conn.release();
   });
+
+  app.post("/get-anime", async (req: Request, res: Response) => {
+    const url = req.body;
+
+    if (url.length == 0) return res.status(500);
+
+    const conn = await pool.getConnection();
+
+    const anime = await conn.query(
+      `
+      SELECT * FROM anime WHERE url = (?);`,
+      url,
+    );
+
+    if (anime.length !== 0) {
+      res.status(200).json(anime[0]);
+    } else {
+      res.status(404).send();
+    }
+
+    conn.release();
+  });
+
+  app.post("/set-anime", async (req: Request, res: Response) => {
+    if (req.body.length == 0) return res.status(500).send();
+
+    const json = JSON.parse(req.body);
+
+    if (
+      typeof json.redirect == "undefined" ||
+      typeof json.title == "undefined" ||
+      typeof json.image == "undefined"
+    )
+      return res.status(500).send();
+
+    const conn = await pool.getConnection();
+
+    await conn.query(
+      `
+      INSERT INTO anime (url, title, image) VALUES (?, ?, ?)`,
+      [json.redirect, json.title, json.image],
+    );
+
+    res.status(200).send();
+
+    conn.release();
+  });
 }
