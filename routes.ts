@@ -42,31 +42,6 @@ export default function (app: Express, pool: mariadb.Pool) {
     conn.release();
   });
 
-  // Routes for register, login
-  app.get("/register", (req: Request, res: Response) => {
-    res
-      .status(200)
-      .setHeader("Content-Type", "text/html")
-      .send(
-        fs.readFileSync(
-          path.join(__dirname, "/public/register/index.html"),
-          "utf8",
-        ),
-      );
-  });
-
-  app.get("/login", (req: Request, res: Response) => {
-    res
-      .status(200)
-      .setHeader("Content-Type", "text/html")
-      .send(
-        fs.readFileSync(
-          path.join(__dirname, "/public/login/index.html"),
-          "utf8",
-        ),
-      );
-  });
-
   app.post("/auth-register", async (req: Request, res: Response) => {
     const conn = await pool.getConnection();
     try {
