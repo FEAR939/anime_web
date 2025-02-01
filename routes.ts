@@ -27,10 +27,10 @@ export default function (app: Express, pool: mariadb.Pool) {
       });
 
       await conn.query("UPDATE users SET avatar_url = ? WHERE user_id = ?", [
-        `/public/${filename}`,
+        `/${filename}`,
         (<any>decoded).userId,
       ]);
-      res.status(200).json({ url: filepath });
+      res.status(200).json({ url: `/${filename}` });
     } catch (e) {
       res.status(500).send();
     }
