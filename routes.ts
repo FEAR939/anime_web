@@ -3,26 +3,28 @@ import fs from "fs";
 import mariadb from "mariadb";
 import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
-import { Express, Request, Response } from "express";
+import { Hono } from "hono";
 
-export default function (app: Express, pool: mariadb.Pool) {
-  app.post("/avatar-upload", async (req: Request, res: Response) => {
+export default function (app: Hono, pool: mariadb.Pool) {
+  app.post("/avatar-upload", async (c) => {
     const conn = await pool.getConnection();
-    const token = req.header("Authorization");
-    if (!token) return res.status(401).json({ error: "Acces denied" });
+    const token = c.req.header("Authorization");
+    if (!token) return c.json({ error: "Acces denied" }, 401);
     try {
       const decoded = jwt.verify(token, "your-secret-key");
 
-      if (!req.files || Object.keys(req.files).length === 0) {
-        return res.status(400).send("No files were uploaded.");
+      const body = await c.req.parseBody();
+      const file = body["file"];
+      if (!file) {
+        return c.text("No files were uploaded", 400);
       }
 
       // Generate unique filename
-      const filename = Date.now() + "-" + req.files.file.name;
+      const filename = Date.now() + "-" + file.name;
       const filepath = path.join(__dirname, `/public/${filename}`);
 
       // Save the file
-      await fs.writeFile(filepath, req.files.file.data, (err) => {
+      fs.writeFile(filepath, file.data, (err) => {
         if (err) throw new Error(err);
       });
 
@@ -30,17 +32,18 @@ export default function (app: Express, pool: mariadb.Pool) {
         `/${filename}`,
         (<any>decoded).userId,
       ]);
-      res.status(200).json({ url: `/${filename}` });
+      return c.json({ url: `/${filename}` }, 200);
     } catch (e) {
-      res.status(500).send();
+      return c.text("", 500);
+    } finally {
+      conn.release();
     }
-    conn.release();
   });
 
-  app.get("/get-user", async (req: Request, res: Response) => {
+  app.get("/get-user", async (c) => {
     const conn = await pool.getConnection();
-    const token = req.header("Authorization");
-    if (!token) return res.status(401).json({ error: "Acces denied" });
+    const token = c.req.header("Authorization");
+    if (!token) return c.json({ error: "Acces denied" }, 401);
     try {
       const decoded = jwt.verify(token, "your-secret-key");
 
@@ -48,64 +51,66 @@ export default function (app: Express, pool: mariadb.Pool) {
         "Select username, avatar_url FROM users WHERE user_id = ?",
         (<any>decoded).userId,
       );
-      res.status(201).send(user[0]);
+      return c.json(user[0], 201);
     } catch (error) {
-      res.status(401).json({ error: "Invalid token" });
+      return c.json({ error: "Invalid token" }, 401);
+    } finally {
+      conn.release();
     }
-    conn.release();
   });
 
-  app.post("/auth-register", async (req: Request, res: Response) => {
+  app.post("/auth-register", async (c) => {
     const conn = await pool.getConnection();
     try {
-      const { username, password } = req.body;
+      const { username, password } = await c.req.json();
       const hashedpassword = await bcrypt.hash(password, 10);
 
       conn.query("INSERT INTO users (username, password_hash) VALUES (?, ?)", [
         username,
         hashedpassword,
       ]);
-      res.status(201).json({ message: "User registered successfully" });
+
+      return c.json({ message: "User registered successfully" }, 201);
     } catch (error) {
-      res.status(500).json({ message: "Registration failed" });
+      return c.json({ message: "Registration failed" }, 500);
+    } finally {
+      conn.release();
     }
-    conn.release();
   });
 
-  app.post("/auth-login", async (req: Request, res: Response) => {
+  app.post("/auth-login", async (c) => {
     const conn = await pool.getConnection();
     try {
-      const { username, password } = req.body;
+      const { username, password } = await c.req.parseBody();
+      console.log(username, password);
       const user = await conn.query(
         "SELECT * FROM users WHERE username=(?)",
         username,
       );
       if (!user) {
-        return res.status(401).json({ error: "Authentication failed" });
+        return c.json({ error: "Authentication failed" }, 401);
       }
-      const passwordMatch = await bcrypt.compare(
-        password,
-        user[0].password_hash,
-      );
+      const passwordMatch = bcrypt.compare(password, user[0].password_hash);
       if (!passwordMatch) {
-        return res.status(401).json({ error: "Authentication failed" });
+        return c.json({ error: "Authentication failed" }, 401);
       }
       const token = jwt.sign({ userId: user[0].user_id }, "your-secret-key");
-      res.status(200).json({ token });
+      return c.json({ token }, 200);
     } catch (error) {
-      res.status(500).json({ error: "Login failed" });
+      return c.json({ error: "Login failed" }, 500);
+    } finally {
+      conn.release();
     }
-    conn.release();
   });
   // Routes for seen/unseen
-  app.post("/get-seen", async (req: Request, res: Response) => {
+  app.post("/get-seen", async (c) => {
     const conn = await pool.getConnection();
-    const token = req.header("Authorization");
-    if (!token) return res.status(401).json({ error: "Access denied" });
+    const token = c.req.header("Authorization");
+    if (!token) return c.json({ error: "Access denied" }, 401);
     try {
       const decoded = jwt.verify(token, "your-secret-key");
 
-      const urls = req.body;
+      const urls = await c.req.json();
       const placeholders = urls.map(() => "?").join(",");
 
       const seen = await conn.query(
@@ -114,11 +119,12 @@ export default function (app: Express, pool: mariadb.Pool) {
          AND episode_id IN (${placeholders})`,
         [(<any>decoded).userId, ...urls],
       );
-      res.status(200).send(seen);
+      return c.json(seen, 200);
     } catch (error) {
-      res.status(401).json({ error: "Invalid token" });
+      return c.json({ error: "Invalid token" }, 401);
+    } finally {
+      conn.release();
     }
-    conn.release();
   });
 
   interface Entry {
@@ -127,13 +133,13 @@ export default function (app: Express, pool: mariadb.Pool) {
     redirect: String;
   }
 
-  app.post("/handle-seen", async (req: Request, res: Response) => {
+  app.post("/handle-seen", async (c) => {
     const conn = await pool.getConnection();
-    const token = req.header("Authorization");
-    if (!token) return res.status(401).json({ error: "Acces denied" });
+    const token = c.req.header("Authorization");
+    if (!token) return c.json({ error: "Acces denied" }, 401);
     try {
       const decoded = jwt.verify(token, "your-secret-key");
-      const data = req.body;
+      const data = await c.req.json();
 
       await conn.query(
         `
@@ -145,19 +151,20 @@ export default function (app: Express, pool: mariadb.Pool) {
         [(<any>decoded).userId, data.id, data.playtime, data.duration],
       );
 
-      res.status(200).send();
+      return c.text("", 200);
     } catch (error) {
-      res.status(401).json({ error: "Invalid token" });
+      return c.json({ error: "Invalid token" }, 401);
+    } finally {
+      conn.release();
     }
-    conn.release();
   });
 
   // routes for marked
-  app.get("/get-list", async (req: Request, res: Response) => {
+  app.get("/get-list", async (c) => {
     const conn = await pool.getConnection();
-    const token = req.header("Authorization");
+    const token = c.req.header("Authorization");
 
-    if (!token) return res.status(401).json({ error: "Access denied" });
+    if (!token) return c.json({ error: "Access denied" }, 401);
     try {
       const decoded = jwt.verify(token, "your-secret-key");
 
@@ -166,37 +173,39 @@ export default function (app: Express, pool: mariadb.Pool) {
         (<any>decoded).userId,
       );
 
-      res.status(200).send(marked);
+      return c.json(marked, 200);
     } catch (error) {
-      res.status(401).json({ error: "Error" });
+      return c.json({ error: "Error" }, 401);
+    } finally {
+      conn.release();
     }
-    conn.release();
   });
 
-  app.post("/get-marked", async (req: Request, res: Response) => {
+  app.post("/get-marked", async (c) => {
     const conn = await pool.getConnection();
-    const token = req.header("Authorization");
+    const token = c.req.header("Authorization");
 
-    if (!token) return res.status(401).json({ error: "Access denied" });
+    if (!token) return c.json({ error: "Access denied" }, 401);
     try {
       const decoded = jwt.verify(token, "your-secret-key");
 
       const marked = await conn.query(
         "SELECT is_in_list from user_watchlist WHERE user_id = ? AND series_id = ?",
-        [(<any>decoded).userId, req.body.toString()],
+        [(<any>decoded).userId, await c.req.text()],
       );
 
-      res.status(200).send(marked);
+      return c.json(marked, 200);
     } catch (error) {
-      res.status(401).json({ error: "Error" });
+      return c.json({ error: "Error" }, 401);
+    } finally {
+      conn.release();
     }
-    conn.release();
   });
 
-  app.post("/handle-marked", async (req: Request, res: Response) => {
+  app.post("/handle-marked", async (c) => {
     const conn = await pool.getConnection();
-    const token = req.header("Authorization");
-    if (!token) return res.status(401).json({ error: "Acces denied" });
+    const token = c.req.header("Authorization");
+    if (!token) return c.json({ error: "Acces denied" }, 401);
     try {
       const decoded = jwt.verify(token, "your-secret-key");
 
@@ -206,20 +215,21 @@ export default function (app: Express, pool: mariadb.Pool) {
         VALUES (?, ?, true)
         ON DUPLICATE KEY UPDATE
             is_in_list = NOT is_in_list;`,
-        [(<any>decoded).userId, req.body.toString()],
+        [(<any>decoded).userId, await c.req.text()],
       );
 
-      res.status(200).send();
+      return c.text("", 200);
     } catch (error) {
-      res.status(401).json({ error: "Invalid token" });
+      return c.json({ error: "Invalid token" }, 401);
+    } finally {
+      conn.release();
     }
-    conn.release();
   });
 
-  app.post("/get-anime", async (req: Request, res: Response) => {
-    const url = req.body;
+  app.post("/get-anime", async (c) => {
+    const url = await c.req.text();
 
-    if (url.length == 0) return res.status(500);
+    if (url.length == 0) return c.text("", 500);
 
     const conn = await pool.getConnection();
 
@@ -229,26 +239,26 @@ export default function (app: Express, pool: mariadb.Pool) {
       url,
     );
 
-    if (anime.length !== 0) {
-      res.status(200).json(anime[0]);
-    } else {
-      res.status(404).send();
-    }
-
     conn.release();
+
+    if (anime.length !== 0) {
+      return c.json(anime[0], 200);
+    } else {
+      return c.text("", 404);
+    }
   });
 
-  app.post("/set-anime", async (req: Request, res: Response) => {
-    if (req.body.length == 0) return res.status(500).send();
+  app.post("/set-anime", async (c) => {
+    if ((await c.req.text()).length == 0) return c.text("", 500);
 
-    const json = JSON.parse(req.body);
+    const json = JSON.parse(await c.req.text());
 
     if (
       typeof json.redirect == "undefined" ||
       typeof json.title == "undefined" ||
       typeof json.image == "undefined"
     )
-      return res.status(500).send();
+      return c.text("", 500);
 
     const conn = await pool.getConnection();
 
@@ -258,8 +268,8 @@ export default function (app: Express, pool: mariadb.Pool) {
       [json.redirect, json.title, json.image],
     );
 
-    res.status(200).send();
-
     conn.release();
+
+    return c.text("", 200);
   });
 }

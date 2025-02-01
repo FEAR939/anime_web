@@ -1,26 +1,19 @@
-import express, { Express, NextFunction, Request, Response } from "express";
-import fileUpload from "express-fileupload";
+import bun from "bun";
+import { Hono } from "hono";
+import { serveStatic } from "hono/bun";
+import { cors } from "hono/cors";
 import mariadb from "mariadb";
-const app = express();
+const app = new Hono();
 
 import routes from "./routes.js";
 
-app.use(express.json());
-app.use(express.text({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true }));
-app.use(fileUpload());
-app.use(express.static("public"));
-// Handler for logging requests and CORS Origin
-app.use((req: Request, res: Response, next: NextFunction) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Headers", [
-    "Authorization",
-    "Content-Type",
-  ]);
-  next();
-});
-
-const PORT: number = 5000;
+app.use(
+  "*",
+  cors({
+    origin: "*",
+  }),
+);
+app.use("/", serveStatic({ path: "./public/" }));
 
 const pool = mariadb.createPool({
   host: "raspberrypi",
@@ -31,6 +24,7 @@ const pool = mariadb.createPool({
 
 routes(app, pool);
 
-app.listen(PORT, () => {
-  console.log("Server running on Port: %s", PORT);
+bun.serve({
+  port: 5000,
+  fetch: app.fetch,
 });
