@@ -13,7 +13,7 @@ app.use(
     origin: "*",
   }),
 );
-app.use("/", serveStatic({ root: "./public/" }));
+app.use("/*", serveStatic({ root: "public/" }));
 
 const pool = mariadb.createPool({
   host: "raspberrypi",
