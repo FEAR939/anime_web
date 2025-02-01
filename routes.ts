@@ -1,5 +1,4 @@
 import path from "path";
-import fs from "fs";
 import mariadb from "mariadb";
 import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
@@ -14,19 +13,16 @@ export default function (app: Hono, pool: mariadb.Pool) {
       const decoded = jwt.verify(token, "your-secret-key");
 
       const body = await c.req.parseBody();
-      const file = body["file"];
+      const file = body.file;
+
       if (!file) {
         return c.text("No files were uploaded", 400);
       }
 
-      // Generate unique filename
       const filename = Date.now() + "-" + file.name;
       const filepath = path.join(__dirname, `/public/${filename}`);
 
-      // Save the file
-      fs.writeFile(filepath, file.data, (err) => {
-        if (err) throw new Error(err);
-      });
+      await Bun.write(filepath, file);
 
       await conn.query("UPDATE users SET avatar_url = ? WHERE user_id = ?", [
         `/${filename}`,
