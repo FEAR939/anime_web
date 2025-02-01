@@ -62,8 +62,8 @@ export default function (app: Hono, pool: mariadb.Pool) {
   app.post("/auth-register", async (c) => {
     const conn = await pool.getConnection();
     try {
-      const { username, password } = await c.req.json();
-      const hashedpassword = await bcrypt.hash(password, 10);
+      const { username, password } = await c.req.parseBody();
+      const hashedpassword = bcrypt.hash(password, 10);
 
       conn.query("INSERT INTO users (username, password_hash) VALUES (?, ?)", [
         username,
@@ -82,7 +82,6 @@ export default function (app: Hono, pool: mariadb.Pool) {
     const conn = await pool.getConnection();
     try {
       const { username, password } = await c.req.parseBody();
-      console.log(username, password);
       const user = await conn.query(
         "SELECT * FROM users WHERE username=(?)",
         username,
