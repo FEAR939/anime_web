@@ -22,6 +22,7 @@
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "express": "^4.19.2",
+    "express-fileupload": "^1.5.1",
     "install": "^0.13.0",
     "jsonwebtoken": "^9.0.2",
     "mariadb": "^3.4.0",

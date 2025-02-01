@@ -13,13 +13,26 @@ export default function (app: Express, pool: mariadb.Pool) {
     try {
       const decoded = jwt.verify(token, "your-secret-key");
 
+      if (!req.files || Object.keys(req.files).length === 0) {
+        return res.status(400).send("No files were uploaded.");
+      }
+
+      // Generate unique filename
+      const filename = Date.now() + "-" + req.files.file.name;
+      const filepath = path.join(__dirname, `/public/${filename}`);
+
+      // Save the file
+      await fs.writeFile(filepath, req.files.file.data, (err) => {
+        if (err) throw new Error(err);
+      });
+
       await conn.query("UPDATE users SET avatar_url = ? WHERE user_id = ?", [
-        req.body,
+        filepath,
         (<any>decoded).userId,
       ]);
-      res.status(201).json({ message: "success" });
-    } catch (error) {
-      res.status(401).json({ error: "Invalid token" });
+      res.status(200).json({ url: filepath });
+    } catch (e) {
+      res.status(500).send();
     }
     conn.release();
   });

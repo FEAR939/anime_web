@@ -1,4 +1,5 @@
 import express, { Express, NextFunction, Request, Response } from "express";
+import fileUpload from "express-fileupload";
 import mariadb from "mariadb";
 const app = express();
 
@@ -7,6 +8,8 @@ import routes from "./routes.js";
 app.use(express.json());
 app.use(express.text({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true }));
+app.use(fileUpload());
+app.use(express.static("public"));
 // Handler for logging requests and CORS Origin
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
