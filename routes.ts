@@ -162,15 +162,18 @@ export default function (app: Hono, pool: mariadb.Pool) {
     if (!token) return c.json({ error: "Access denied" }, 401);
     try {
       const decoded = jwt.verify(token, "your-secret-key");
+      const page = c.req.query("page");
+
+      if (typeof page !== "string") throw new Error("No page provided");
 
       const marked = await conn.query(
-        "SELECT series_id from user_watchlist WHERE user_id = ? AND is_in_list = 1",
-        (<any>decoded).userId,
+        "SELECT series_id from user_watchlist WHERE user_id = ? AND is_in_list = 1 LIMIT ?, ?",
+        [(<any>decoded).userId, parseInt(page) * 21, parseInt(page) * 21 + 21],
       );
 
       return c.json(marked, 200);
     } catch (error) {
-      return c.json({ error: "Error" }, 401);
+      return c.json({ error: error }, 401);
     } finally {
       conn.release();
     }
