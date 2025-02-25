@@ -32,19 +32,20 @@ export default function (app: Hono, conn: SQL) {
   });
 
   app.get("/get-user", async (c) => {
-      const token = c.req.header("Authorization");
-      if (!token) return c.json({ error: "Acces denied" }, 401);
-      try {
-        const decoded = jwt.verify(token, "your-secret-key");
+    const token = c.req.header("Authorization");
+    if (!token) return c.json({ error: "Acces denied" }, 401);
+    try {
+      const decoded = jwt.verify(token, "your-secret-key");
 
-        const user = await conn`
+      const user = await conn`
           Select username, avatar_url FROM users WHERE user_id = ${
-          (<any>decoded).userId}
+            (<any>decoded).userId
+          }
         `;
-        return c.json(user[0], 201);
-      } catch (error) {
-        return c.json({ error: "Invalid token" }, 401);
-      }
+      return c.json(user[0], 201);
+    } catch (error) {
+      return c.json({ error: "Invalid token" }, 401);
+    }
   });
 
   app.post("/auth-register", async (c) => {
@@ -52,8 +53,7 @@ export default function (app: Hono, conn: SQL) {
       const { username, password } = await c.req.parseBody();
       const hashedpassword = bcrypt.hash(password, 10);
 
-      conn`INSERT INTO users (username, password_hash) VALUES ${username},
-        ${hashedpassword}`;
+      conn`INSERT INTO users (username, password_hash) VALUES (${username}, ${hashedpassword})`;
 
       return c.json({ message: "User registered successfully" }, 201);
     } catch (error) {
@@ -94,7 +94,7 @@ export default function (app: Hono, conn: SQL) {
 
       for (const url of urls) {
         const query = await conn`
-        SELECT episode_id, watch_playtime, watch_duration 
+        SELECT episode_id, watch_playtime, watch_duration
         FROM watch_history
         WHERE user_id = ${(<any>decoded).userId}
         AND episode_id = ${url}`;
@@ -105,8 +105,8 @@ export default function (app: Hono, conn: SQL) {
         } else {
           continue;
         }
-      };
-      
+      }
+
       return c.json(seen, 200);
     } catch (error) {
       console.log(error);
@@ -127,8 +127,7 @@ export default function (app: Hono, conn: SQL) {
       const decoded = jwt.verify(token, "your-secret-key");
       const data = await c.req.json();
 
-      await conn
-        `
+      await conn`
         INSERT INTO watch_history (user_id, episode_id, watch_playtime, watch_duration)
         VALUES (${(<any>decoded).userId}, ${data.id}, ${data.playtime}, ${data.duration})
         ON CONFLICT(user_id, episode_id) DO UPDATE
@@ -152,7 +151,8 @@ export default function (app: Hono, conn: SQL) {
 
       if (typeof page !== "string") throw new Error("No page provided");
 
-      const marked = await conn`SELECT series_id from user_watchlist WHERE user_id = ${(<any>decoded).userId} AND is_in_list = TRUE LIMIT 21 OFFSET ${parseInt(page) * 21};`;
+      const marked =
+        await conn`SELECT series_id from user_watchlist WHERE user_id = ${(<any>decoded).userId} AND is_in_list = TRUE LIMIT 21 OFFSET ${parseInt(page) * 21};`;
 
       return c.json(marked, 200);
     } catch (error) {
@@ -168,7 +168,8 @@ export default function (app: Hono, conn: SQL) {
     try {
       const decoded = jwt.verify(token, "your-secret-key");
 
-      const marked = await conn`SELECT is_in_list from user_watchlist WHERE user_id = ${(<any>decoded).userId} AND series_id = ${await c.req.text()}`;
+      const marked =
+        await conn`SELECT is_in_list from user_watchlist WHERE user_id = ${(<any>decoded).userId} AND series_id = ${await c.req.text()}`;
 
       return c.json(marked, 200);
     } catch (error) {
