@@ -232,4 +232,27 @@ export default function (app: Hono, conn: SQL) {
 
     return c.text("", 200);
   });
+
+  app.post("/user/activity/update", async (c) => {
+    const token = c.req.header("Authorization");
+    if (!token) return c.json({ error: "Acces denied" }, 401);
+    try {
+      const decoded = jwt.verify(token, "your-secret-key");
+      const activityObj = c.req.json();
+      if (
+        !activityObj.time ||
+        !activityObj.date ||
+        !activityObj.month ||
+        !activityObj.year
+      )
+        throw new Error("Crucial data is missing!");
+
+      await conn`INSERT INTO watch_activity (id, time, date, month, year) VALUES (${(<any>decoded).userId}, ${activityObj.time}, ${activityObj.date}, ${activityObj.month}, ${activityObj.year}) ON CONFLICT(id, date, month, year) DO UPDATE SET time = watch_activity.time + excluded.time;`;
+
+      return c.text("", 200);
+    } catch (error) {
+      console.log(error);
+      return c.json({ error: "Invalid token" }, 401);
+    }
+  });
 }
