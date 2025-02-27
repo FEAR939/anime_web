@@ -238,7 +238,7 @@ export default function (app: Hono, conn: SQL) {
     if (!token) return c.json({ error: "Acces denied" }, 401);
     try {
       const decoded = jwt.verify(token, "your-secret-key");
-      const activityObj = c.req.json();
+      const activityObj = await c.req.json();
       console.log(activityObj);
       if (
         !activityObj.time ||
