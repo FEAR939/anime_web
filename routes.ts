@@ -257,16 +257,16 @@ export default function (app: Hono, conn: SQL) {
     }
   });
 
-  app.get("/user/activity/month", async (c) => {
+  app.get("/user/activity/last-month", async (c) => {
     const token = c.req.header("Authorization");
     if (!token) return c.json({ error: "Acces denied" }, 401);
     try {
       const decoded = jwt.verify(token, "your-secret-key");
-      const { month, year } = c.req.query();
-      if (!month || !year) throw new Error("Crucial data is missing!");
 
-      const activity =
-        await conn`SELECT time, date, month, year FROM watch_activity WHERE id = ${(<any>decoded).userId} AND month = ${month} AND year = ${year};`;
+      const activity = await conn`SELECT time, date, month, year
+        FROM watch_activity
+        WHERE id = ${(<any>decoded).userId} AND MAKE_DATE(year, month, date) > CURRENT_DATE - INTERVAL '31 days'
+        ORDER BY year, month, date, time;`;
 
       return c.json(activity, 200);
     } catch (error) {
