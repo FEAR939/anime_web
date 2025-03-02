@@ -60,6 +60,7 @@ export default function (app: Hono, conn: SQL) {
 
       return c.json({ message: "User registered successfully" }, 201);
     } catch (error) {
+      console.log(error);
       return c.json({ message: "Registration failed" }, 500);
     }
   });
