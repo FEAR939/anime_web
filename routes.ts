@@ -27,6 +27,7 @@ export default function (app: Hono, conn: SQL) {
       await conn`UPDATE users SET avatar_url = /${filename} WHERE user_id = ${(<any>decoded).userId}`;
       return c.json({ url: `/${filename}` }, 200);
     } catch (e) {
+      console.log(e);
       return c.text("", 500);
     }
   });
