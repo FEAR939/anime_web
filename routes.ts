@@ -51,7 +51,7 @@ export default function (app: Hono, conn: SQL) {
   app.post("/auth-register", async (c) => {
     try {
       const { username, password } = await c.req.parseBody();
-      const hashedpassword = await bcrypt.hash(password, 10);
+      const hashedpassword = bcrypt.hashSync(password, 10);
 
       const query =
         await conn`INSERT INTO users (username, password_hash) VALUES (${username.toString()}, ${hashedpassword.toString()})`;
