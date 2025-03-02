@@ -54,7 +54,7 @@ export default function (app: Hono, conn: SQL) {
       const hashedpassword = bcrypt.hash(password, 10);
 
       const query =
-        await conn`INSERT INTO users (username, password_hash) VALUES ('${username}', '${hashedpassword}')`;
+        await conn`INSERT INTO users (username, password_hash) VALUES (${username}, ${hashedpassword})`;
 
       console.log(query);
 
