@@ -244,7 +244,7 @@ export default function (app: Hono, conn: SQL) {
     try {
       const decoded = jwt.verify(token, "your-secret-key");
       const activityObj = await c.req.json();
-      console.log(activityObj);
+
       if (
         !activityObj.time ||
         !activityObj.day ||
@@ -277,6 +277,26 @@ export default function (app: Hono, conn: SQL) {
     } catch (error) {
       console.log(error);
       return c.json({ error: "Invalid token" }, 401);
+    }
+  });
+
+  app.get("/user/getHistory", async (c) => {
+    const token = c.req.header("Authorization");
+
+    if (!token) return c.json({ error: "Access denied" }, 401);
+    try {
+      const decoded = jwt.verify(token, "your-secret-key");
+      const page = c.req.query("page");
+
+      if (typeof page !== "string") throw new Error("No page provided");
+
+      const history =
+        await conn`SELECT created_at, anime_id from user_history WHERE user_id = ${(<any>decoded).userId} ORDER BY created_at ASC LIMIT 10 OFFSET ${parseInt(page) * 10};`;
+
+      return c.json(history, 200);
+    } catch (error) {
+      console.log(error);
+      return c.json({ error: error }, 401);
     }
   });
 }
