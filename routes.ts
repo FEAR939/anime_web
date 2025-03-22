@@ -139,6 +139,9 @@ export default function (app: Hono, conn: SQL) {
             SET watch_playtime = excluded.watch_playtime,
             watch_duration = excluded.watch_duration`;
 
+      await conn`
+        INSERT INTO user_history (user_id, anime_id, episode_id) VALUES (${(<any>decoded).userId}, ${data.anime}, ${data.id})`;
+
       return c.text("", 200);
     } catch (error) {
       return c.json({ error: "Invalid token" }, 401);
