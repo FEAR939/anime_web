@@ -288,7 +288,7 @@ export default function (app: Hono, conn: SQL) {
       if (typeof page !== "string") throw new Error("No page provided");
 
       const history =
-        await conn`SELECT created_at, anime_id from user_history WHERE user_id = ${(<any>decoded).userId} ORDER BY created_at ASC LIMIT 10 OFFSET ${parseInt(page) * 10};`;
+        await conn`SELECT created_at, anime_id from user_history WHERE user_id = ${(<any>decoded).userId} ORDER BY created_at DESC LIMIT 10 OFFSET ${parseInt(page) * 10};`;
 
       return c.json(history, 200);
     } catch (error) {
