@@ -139,9 +139,6 @@ export default function (app: Hono, conn: SQL) {
             SET watch_playtime = excluded.watch_playtime,
             watch_duration = excluded.watch_duration`;
 
-      await conn`
-        INSERT INTO user_history (user_id, anime_id, episode_id) VALUES (${(<any>decoded).userId}, ${data.anime}, ${data.id})`;
-
       return c.text("", 200);
     } catch (error) {
       return c.json({ error: "Invalid token" }, 401);
@@ -297,6 +294,22 @@ export default function (app: Hono, conn: SQL) {
     } catch (error) {
       console.log(error);
       return c.json({ error: error }, 401);
+    }
+  });
+
+  app.post("/user/setHistory", async (c) => {
+    const token = c.req.header("Authorization");
+    if (!token) return c.json({ error: "Acces denied" }, 401);
+    try {
+      const decoded = jwt.verify(token, "your-secret-key");
+      const data = await c.req.json();
+
+      await conn`
+        INSERT INTO user_history (user_id, anime_id, episode_id) VALUES (${(<any>decoded).userId}, ${data.anime}, ${data.id})`;
+
+      return c.text("", 200);
+    } catch (error) {
+      return c.json({ error: "Invalid token" }, 401);
     }
   });
 }
