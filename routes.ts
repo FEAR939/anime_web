@@ -1,6 +1,5 @@
 import path from "path";
 import { SQL } from "bun";
-import mariadb from "mariadb";
 import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
 import { Hono } from "hono";
@@ -15,7 +14,7 @@ export default function (app: Hono, conn: SQL) {
       const body = await c.req.parseBody();
       const file = body.file;
 
-      if (!file) {
+      if (!file || typeof file == "string") {
         return c.text("No files were uploaded", 400);
       }
 
@@ -52,12 +51,16 @@ export default function (app: Hono, conn: SQL) {
   app.post("/auth-register", async (c) => {
     try {
       const { username, password } = await c.req.parseBody();
+      if (!username || typeof username !== "string") {
+        return c.json({ error: "Invalid username" }, 400);
+      }
+      if (!password || typeof password !== "string") {
+        return c.json({ error: "Invalid password" }, 400);
+      }
       const hashedpassword = bcrypt.hashSync(password, 10);
 
       const query =
         await conn`INSERT INTO users (username, password_hash) VALUES (${username.toString()}, ${hashedpassword.toString()})`;
-
-      console.log(query);
 
       return c.json({ message: "User registered successfully" }, 201);
     } catch (error) {
@@ -69,9 +72,15 @@ export default function (app: Hono, conn: SQL) {
   app.post("/auth-login", async (c) => {
     try {
       const { username, password } = await c.req.parseBody();
+      if (!username || typeof username !== "string") {
+        return c.json({ error: "Invalid username" }, 400);
+      }
+      if (!password || typeof password !== "string") {
+        return c.json({ error: "Invalid password" }, 400);
+      }
       const user = await conn`SELECT * FROM users WHERE username=${username}
       `;
-      console.log(user);
+
       if (!user) {
         return c.json({ error: "Authentication failed" }, 401);
       }

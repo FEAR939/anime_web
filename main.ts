@@ -3,7 +3,6 @@ import { SQL } from "bun";
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
 import { cors } from "hono/cors";
-import mariadb from "mariadb";
 const app = new Hono();
 
 import routes from "./routes.js";
@@ -23,25 +22,27 @@ async function main() {
     url: "postgres://raspberry:rasp@0.0.0.0:5432/hazl",
 
     bigint: true,
-  
+
     // Callbacks
-    onconnect: client => {
+    onconnect: (client) => {
       console.log("Connected to database");
     },
-    onclose: client => {
+    onclose: (client) => {
       console.log("Connection closed");
     },
   });
-  
+
   const conn = await db.connect();
-  
+
   routes(app, conn);
-  
+
   bun.serve({
     port: 5000,
     fetch: app.fetch,
-    certFile: "/etc/letsencrypt/live/animenetwork.org/fullchain.pem",
-    keyFile: "/etc/letsencrypt/live/animenetwork.org/privkey.pem",
+    tls: {
+      certFile: "/etc/letsencrypt/live/animenetwork.org/fullchain.pem",
+      keyFile: "/etc/letsencrypt/live/animenetwork.org/privkey.pem",
+    },
   });
 }
 
