@@ -166,7 +166,7 @@ export default function (app: Hono, conn: SQL) {
       if (typeof page !== "string") throw new Error("No page provided");
 
       const marked =
-        await conn`SELECT series_id from user_watchlist WHERE user_id = ${(<any>decoded).userId} AND is_in_list = TRUE LIMIT 21 OFFSET ${parseInt(page) * 21};`;
+        await conn`SELECT series_id from user_watchlist WHERE user_id = ${(<any>decoded).userId} AND is_in_list = TRUE ORDER BY series_id ASC LIMIT 21 OFFSET ${parseInt(page) * 21};`;
 
       return c.json(marked, 200);
     } catch (error) {
