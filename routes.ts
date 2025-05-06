@@ -31,6 +31,32 @@ export default function (app: Hono, conn: SQL) {
     }
   });
 
+  app.post("/banner-upload", async (c) => {
+    const token = c.req.header("Authorization");
+    if (!token) return c.json({ error: "Acces denied" }, 401);
+    try {
+      const decoded = jwt.verify(token, "your-secret-key");
+
+      const body = await c.req.parseBody();
+      const file = body.file;
+
+      if (!file || typeof file == "string") {
+        return c.text("No files were uploaded", 400);
+      }
+
+      const filename = Date.now() + "-" + file.name;
+      const filepath = path.join(__dirname, `/public/${filename}`);
+
+      await Bun.write(filepath, file);
+
+      await conn`UPDATE users SET banner_url = ${"/" + filename} WHERE user_id = ${(<any>decoded).userId}`;
+      return c.json({ url: `/${filename}` }, 200);
+    } catch (e) {
+      console.log(e);
+      return c.text("", 500);
+    }
+  });
+
   app.get("/get-user", async (c) => {
     const token = c.req.header("Authorization");
     if (!token) return c.json({ error: "Acces denied" }, 401);
@@ -38,7 +64,7 @@ export default function (app: Hono, conn: SQL) {
       const decoded = jwt.verify(token, "your-secret-key");
 
       const user = await conn`
-          Select username, avatar_url FROM users WHERE user_id = ${
+          Select username, avatar_url, banner_url FROM users WHERE user_id = ${
             (<any>decoded).userId
           }
         `;
