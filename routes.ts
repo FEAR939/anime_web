@@ -377,7 +377,7 @@ export default function (app: Hono, conn: SQL) {
     const user_id = c.req.query("user_id");
     if (!user_id) return c.text("No user_id provided", 400);
     const author =
-      await conn`SELECT (username, avatar_url) FROM users WHERE user_id = ${user_id}`;
+      await conn`SELECT username, avatar_url FROM users WHERE user_id = ${user_id}`;
 
     return c.json(author, 200);
   });
