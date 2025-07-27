@@ -381,4 +381,24 @@ export default function (app: Hono, conn: SQL) {
 
     return c.json(author, 200);
   });
+
+  app.post("/thread/postMessage", async (c) => {
+    const anime = c.req.query("anime");
+    if (!anime) return c.text("No anime provided", 400);
+
+    const message = (await c.req.json()).message;
+
+    const token = c.req.header("Authorization");
+    if (!token) return c.json({ error: "Acces denied" }, 401);
+    try {
+      const decoded = jwt.verify(token, "your-secret-key");
+
+      await conn`
+        INSERT INTO anime_threads (anime_id, content, user_id) VALUES (${anime}, ${message}, ${(<any>decoded).userId})`;
+
+      return c.text("", 200);
+    } catch (error) {
+      return c.json({ error: "Invalid token" }, 401);
+    }
+  });
 }
