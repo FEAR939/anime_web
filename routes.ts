@@ -372,4 +372,13 @@ export default function (app: Hono, conn: SQL) {
 
     return c.json(thread, 200);
   });
+
+  app.get("/thread/getAuthor", async (c) => {
+    const user_id = c.req.query("user_id");
+    if (!user_id) return c.text("No user_id provided", 400);
+    const author =
+      await conn`SELECT (username, avatar_url) FROM users WHERE id = ${user_id}`;
+
+    return c.json(author, 200);
+  });
 }
