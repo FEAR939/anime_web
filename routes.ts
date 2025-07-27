@@ -363,4 +363,13 @@ export default function (app: Hono, conn: SQL) {
       return c.json({ error: "Invalid token" }, 401);
     }
   });
+
+  app.get("/anime/getThread", async (c) => {
+    const anime = c.req.query("anime");
+    if (!anime) return c.text("No anime provided", 400);
+    const thread =
+      await conn`SELECT * FROM anime_threads WHERE anime_id = ${anime}`;
+
+    return c.json(thread, 200);
+  });
 }
