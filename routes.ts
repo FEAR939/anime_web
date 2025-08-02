@@ -290,7 +290,7 @@ export default function (app: Hono, conn: SQL) {
       return c.text("", 200);
     } catch (error) {
       console.log(error);
-      return c.json({ error: "Invalid token" }, 401);
+      return c.json({ error: error }, 401);
     }
   });
 
